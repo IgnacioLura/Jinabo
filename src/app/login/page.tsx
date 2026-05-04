@@ -54,6 +54,7 @@ function LoginForm() {
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", bounce: 0.5 }}
           className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-700 text-white font-black grid place-items-center text-3xl mx-auto shadow-lg"
+          aria-hidden="true"
         >
           J
         </motion.div>
@@ -64,8 +65,8 @@ function LoginForm() {
           transition={{ delay: 0.3 }}
           className="text-center mt-5 mb-8"
         >
-          <h1 className="text-3xl font-extrabold tracking-tight">Jinbao</h1>
-          <p className="text-sm text-[var(--foreground)]/50 mt-1">Ingresa para continuar</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Jinabo</h1>
+          <p className="text-sm text-[var(--foreground)]/70 mt-1">Ingresá para continuar</p>
         </motion.div>
 
         <motion.div
@@ -75,8 +76,8 @@ function LoginForm() {
         >
           <label className="block">
             <span className="text-sm font-semibold flex items-center gap-1.5">
-              <Lock size={14} />
-              Contrasena
+              <Lock size={14} aria-hidden="true" />
+              Contraseña
             </span>
             <div className="relative mt-2">
               <input
@@ -84,20 +85,24 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
-                className="w-full px-4 py-3.5 pr-12 text-lg rounded-xl border-2 border-[var(--border)] focus:border-[var(--brand)] focus:outline-none bg-white/80 transition-colors"
+                aria-describedby={error ? "login-error" : undefined}
+                className="w-full px-4 py-3.5 pr-12 text-lg rounded-xl border-2 border-[var(--border)] focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-orange-500/30 bg-white/80 transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[var(--foreground)]/40 hover:text-[var(--foreground)]"
+                aria-label={showPw ? "Ocultar contraseña" : "Mostrar contraseña"}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 text-[var(--foreground)]/40 hover:text-[var(--foreground)]"
               >
-                {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPw ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
               </button>
             </div>
           </label>
 
           {error && (
             <motion.p
+              id="login-error"
+              role="alert"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               className="mt-3 text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-xl border border-rose-200 font-medium"

@@ -23,22 +23,22 @@ export default function ArticuloCard({ articulo, onVender, index = 0 }: Readonly
     >
       <Link
         href={`/articulos/${articulo.id}`}
+        aria-label={articulo.nombre}
         className="block aspect-square bg-gradient-to-br from-[var(--surface-soft)] to-[#ede4d8] relative overflow-hidden group"
       >
         {articulo.fotoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={articulo.fotoUrl}
-            alt={articulo.nombre}
+            alt=""
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full grid place-items-center text-[var(--foreground)]/20">
+          <div className="w-full h-full grid place-items-center text-[var(--foreground)]/20" aria-hidden="true">
             <ImageOff size={48} strokeWidth={1} />
           </div>
         )}
-        {/* Gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
 
         <div className="absolute top-2 right-2">
           <StockBadge stock={articulo.stock} stockMinimo={articulo.stockMinimo} />
@@ -54,12 +54,9 @@ export default function ArticuloCard({ articulo, onVender, index = 0 }: Readonly
       </Link>
 
       <div className="p-3 flex flex-col gap-3 flex-1">
-        <Link
-          href={`/articulos/${articulo.id}`}
-          className="font-bold text-[15px] leading-tight line-clamp-2 min-h-[36px] hover:text-[var(--brand)] transition-colors"
-        >
+        <p className="font-bold text-[15px] leading-tight line-clamp-2 min-h-[36px]">
           {articulo.nombre}
-        </Link>
+        </p>
         <PrecioBadges
           precioBarato={articulo.precioBarato}
           precioMedio={articulo.precioMedio}
@@ -73,7 +70,7 @@ export default function ArticuloCard({ articulo, onVender, index = 0 }: Readonly
           onClick={() => onVender(articulo)}
           className="tap mt-auto w-full px-4 py-2.5 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold hover:shadow-md transition-shadow flex items-center justify-center gap-2 btn-glow"
         >
-          <ShoppingCart size={16} />
+          <ShoppingCart size={16} aria-hidden="true" />
           Vender
         </motion.button>
       </div>

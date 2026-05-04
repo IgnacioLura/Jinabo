@@ -32,7 +32,7 @@ export default function PrecioBadges({
           transition={{ delay: i * 0.05 }}
           className={`px-2 py-1.5 rounded-xl border bg-gradient-to-br ${it.bg} ${it.border} ${it.text} text-center`}
         >
-          <div className="text-[10px] uppercase tracking-wider font-bold opacity-60">
+          <div className="text-[10px] uppercase tracking-wider font-bold opacity-80">
             {it.label}
           </div>
           <div className={`font-extrabold tabular-nums ${compact ? "text-sm" : "text-base"}`}>

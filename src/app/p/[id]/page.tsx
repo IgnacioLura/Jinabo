@@ -38,7 +38,7 @@ export default function PublicArticuloPage() {
   useEffect(() => {
     fetch(`/api/p/${id}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(setArticulo)
+      .then((data) => { setArticulo(data); document.title = `${data.nombre} — Jinabo`; })
       .catch(() => setError(true));
   }, [id]);
 
