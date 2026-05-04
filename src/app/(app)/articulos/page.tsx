@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Search, AlertTriangle, Upload } from "lucide-react";
-import { toast } from "sonner";
+import { Plus, Search, AlertTriangle } from "lucide-react";
 import type { Articulo, Categoria } from "@/types/models";
 import ArticuloCard from "@/components/articulos/ArticuloCard";
 import MovimientoModal from "@/components/articulos/MovimientoModal";
@@ -17,28 +16,6 @@ export default function ArticulosPage() {
   const [stockBajo, setStockBajo] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [vendiendo, setVendiendo] = useState<Articulo | null>(null);
-  const [importando, setImportando] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  async function importarExcel(e: React.ChangeEvent<HTMLInputElement>) {
-    const archivo = e.target.files?.[0];
-    if (!archivo) return;
-    e.target.value = "";
-    setImportando(true);
-    const fd = new FormData();
-    fd.append("archivo", archivo);
-    try {
-      const res = await fetch("/api/articulos/importar", { method: "POST", body: fd });
-      const data = await res.json();
-      toast.success(`Importado: ${data.creados} creados, ${data.omitidos} ya existían`);
-      if (data.errores?.length) toast.error(`${data.errores.length} errores`);
-      await cargar();
-    } catch {
-      toast.error("Error al importar");
-    } finally {
-      setImportando(false);
-    }
-  }
 
   async function cargar() {
     setCargando(true);
@@ -84,28 +61,15 @@ export default function ArticulosPage() {
             {filtrados.length} de {articulos.length} articulos
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importarExcel} />
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => inputRef.current?.click()}
-            disabled={importando}
-            className="tap inline-flex items-center gap-2 px-5 py-3 bg-white border-2 border-[var(--border)] rounded-xl font-bold shadow-sm hover:bg-[var(--surface-soft)] disabled:opacity-50"
+        <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+          <Link
+            href="/articulos/nuevo"
+            className="tap inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold shadow-md btn-glow"
           >
-            <Upload size={20} />
-            {importando ? "Importando..." : "Importar Excel"}
-          </motion.button>
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-            <Link
-              href="/articulos/nuevo"
-              className="tap inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold shadow-md btn-glow"
-            >
-              <Plus size={20} />
-              Nuevo articulo
-            </Link>
-          </motion.div>
-        </div>
+            <Plus size={20} />
+            Nuevo articulo
+          </Link>
+        </motion.div>
       </motion.div>
 
       <motion.div
