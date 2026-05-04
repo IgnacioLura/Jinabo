@@ -11,6 +11,6 @@ UPLOAD_DIR = "/app/uploads"
 HOSTNAME = "0.0.0.0"
 
 [deploy]
-startCommand = "./node_modules/.bin/prisma migrate deploy && node server.js"
+startCommand = "node node_modules/prisma/build/index.js migrate deploy && node server.js"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
