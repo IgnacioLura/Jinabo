@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Categoria {
+  id        Int        @id @default(autoincrement())
+  nombre    String     @unique
+  color     String     @default("#94a3b8")
+  orden     Int        @default(0)
+  articulos Articulo[]
+}
+
+model Articulo {
+  id          Int     @id @default(autoincrement())
+  nombre      String
+  sku         String? @unique
+  categoriaId Int?
+  categoria   Categoria? @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+
+  costo         Float @default(0)
+  markupBarato  Float @default(1.20)
+  markupMedio   Float @default(2.00)
+  markupCaro    Float @default(2.50)
+
+  precioBarato Float @default(0)
+  precioMedio  Float @default(0)
+  precioCaro   Float @default(0)
+
+  precioBaratoOverride Boolean @default(false)
+  precioMedioOverride  Boolean @default(false)
+  precioCaroOverride   Boolean @default(false)
+
+  stock        Int @default(0)
+  stockMinimo  Int @default(0)
+  fotoUrl      String?
+  notas        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movimientos Movimiento[]
+
+  @@index([categoriaId])
+  @@index([nombre])
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  VENTA
+  AJUSTE
+}
+
+enum ModoPrecio {
+  BARATO
+  MEDIO
+  CARO
+}
+
+model Movimiento {
+  id             Int             @id @default(autoincrement())
+  articuloId     Int
+  articulo       Articulo        @relation(fields: [articuloId], references: [id], onDelete: Cascade)
+  tipo           TipoMovimiento
+  cantidad       Int
+  precioUnitario Float?
+  modoPrecio     ModoPrecio?
+  motivo         String?
+  fecha          DateTime        @default(now())
+
+  @@index([articuloId, fecha])
+  @@index([fecha])
+  @@index([tipo, fecha])
+}
