@@ -8,9 +8,10 @@ NODE_ENV = "production"
 AUTH_SECRET = "yVIXGr7GRlLwtUlb3i62UE6Xw1vDEsVq2uWg4PYfBcY="
 APP_PASSWORD = ""
 UPLOAD_DIR = "/app/uploads"
+HOSTNAME = "0.0.0.0"
 
 [deploy]
-startCommand = "npx prisma migrate deploy && HOSTNAME=0.0.0.0 node server.js"
+startCommand = "npx prisma migrate deploy && export HOSTNAME=0.0.0.0 && node server.js"
 healthcheckPath = "/"
 healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
