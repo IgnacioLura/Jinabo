@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingCart, ArrowDownToLine, ArrowUpFromLine, SlidersHorizontal, ImageOff } from "lucide-react";
+import { ArrowLeft, ShoppingCart, ArrowDownToLine, ArrowUpFromLine, SlidersHorizontal, ImageOff, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import type { ArticuloDetalle, Categoria } from "@/types/models";
 import StockBadge from "./StockBadge";
 import PrecioBadges from "./PrecioBadges";
@@ -101,7 +102,20 @@ export default function ArticuloDetalleClient({
             )}
             <StockBadge stock={articulo.stock} stockMinimo={articulo.stockMinimo} showLabel />
           </div>
-          <h1 className="text-3xl font-extrabold leading-tight tracking-tight">{articulo.nombre}</h1>
+          <div className="flex items-start justify-between gap-2">
+            <h1 className="text-3xl font-extrabold leading-tight tracking-tight">{articulo.nombre}</h1>
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/p/${articulo.id}`;
+                navigator.clipboard.writeText(url);
+                toast.success("Link copiado");
+              }}
+              className="tap shrink-0 p-2 rounded-xl border-2 border-[var(--border)] hover:bg-[var(--surface-soft)] transition-colors"
+              title="Compartir"
+            >
+              <Share2 size={18} />
+            </button>
+          </div>
           {articulo.sku && <p className="text-sm text-[var(--foreground)]/50 mt-1 font-medium">SKU: {articulo.sku}</p>}
           <div className="mt-4 max-w-md">
             <PrecioBadges
