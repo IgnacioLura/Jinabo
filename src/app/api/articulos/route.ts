@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
       stock: stockInicial,
       stockMinimo: Math.max(0, Math.floor(Number(data.stockMinimo) || 0)),
       fotoUrl: data.fotoUrl || null,
+      descripcion: data.descripcion || null,
       notas: data.notas || null,
       movimientos: stockInicial > 0
         ? {

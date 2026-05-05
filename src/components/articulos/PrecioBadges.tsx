@@ -35,7 +35,7 @@ export default function PrecioBadges({
           <div className="text-[10px] uppercase tracking-wider font-bold opacity-80">
             {it.label}
           </div>
-          <div className={`font-extrabold tabular-nums ${compact ? "text-sm" : "text-base"}`}>
+          <div className={`font-black tabular-nums ${compact ? "text-base" : "text-lg"}`}>
             {formatearMoneda(it.val)}
           </div>
         </motion.div>

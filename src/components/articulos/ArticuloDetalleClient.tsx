@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingCart, ArrowDownToLine, ArrowUpFromLine, SlidersHorizontal, ImageOff, Share2 } from "lucide-react";
+import { ArrowLeft, ShoppingCart, ArrowDownToLine, ArrowUpFromLine, SlidersHorizontal, ImageOff, Share2, Check } from "lucide-react";
 import { toast } from "sonner";
 import type { ArticuloDetalle, Categoria } from "@/types/models";
 import StockBadge from "./StockBadge";
@@ -12,7 +12,7 @@ import MovimientoModal from "./MovimientoModal";
 import ArticuloForm from "./ArticuloForm";
 import Spinner from "@/components/Spinner";
 import { TIPO_COLOR, TIPO_LABEL } from "@/lib/stock";
-import { formatearMoneda, MODO_LABEL } from "@/lib/precios";
+import { formatearMoneda, MODO_LABEL, type ModoPrecio } from "@/lib/precios";
 
 interface Props {
   articuloInicial: ArticuloDetalle;
@@ -29,6 +29,8 @@ export default function ArticuloDetalleClient({
   const [tab, setTab] = useState<Tab>("datos");
   const [movModal, setMovModal] = useState<null | "VENTA" | "ENTRADA" | "SALIDA" | "AJUSTE">(null);
   const [refrescando, setRefrescando] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareCopiado, setShareCopiado] = useState<ModoPrecio | null>(null);
 
   async function refrescar() {
     setRefrescando(true);
@@ -104,17 +106,41 @@ export default function ArticuloDetalleClient({
           </div>
           <div className="flex items-start justify-between gap-2">
             <h1 className="text-3xl font-extrabold leading-tight tracking-tight">{articulo.nombre}</h1>
-            <button
-              onClick={() => {
-                const url = `${window.location.origin}/p/${articulo.id}`;
-                navigator.clipboard.writeText(url);
-                toast.success("Link copiado");
-              }}
-              className="tap shrink-0 p-2 rounded-xl border-2 border-[var(--border)] hover:bg-[var(--surface-soft)] transition-colors"
-              title="Compartir"
-            >
-              <Share2 size={18} />
-            </button>
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setShareOpen((v) => !v)}
+                className="tap p-2 rounded-xl border-2 border-[var(--border)] hover:bg-[var(--surface-soft)] transition-colors"
+                title="Compartir"
+              >
+                <Share2 size={18} />
+              </button>
+              {shareOpen && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setShareOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 z-30 bg-white rounded-2xl border-2 border-[var(--border)] shadow-xl p-3 w-52">
+                  <p className="text-xs font-bold text-[var(--foreground)]/50 mb-2 uppercase tracking-wide px-1">
+                    Compartir como
+                  </p>
+                  {(["BARATO", "MEDIO", "CARO"] as ModoPrecio[]).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => {
+                        const url = `${window.location.origin}/p/${articulo.id}?modo=${m}`;
+                        navigator.clipboard.writeText(url);
+                        setShareCopiado(m);
+                        setTimeout(() => { setShareCopiado(null); setShareOpen(false); }, 1500);
+                        toast.success(`Link ${MODO_LABEL[m]} copiado`);
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[var(--surface-soft)] transition-colors text-sm font-semibold text-left"
+                    >
+                      {MODO_LABEL[m]}
+                      {shareCopiado === m && <Check size={14} className="text-emerald-600" />}
+                    </button>
+                  ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
           {articulo.sku && <p className="text-sm text-[var(--foreground)]/50 mt-1 font-medium">SKU: {articulo.sku}</p>}
           <div className="mt-4 max-w-md">

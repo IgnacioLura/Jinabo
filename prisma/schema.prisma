@@ -38,6 +38,7 @@ model Articulo {
   stock        Int @default(0)
   stockMinimo  Int @default(0)
   fotoUrl      String?
+  descripcion  String?
   notas        String?
 
   createdAt DateTime @default(now())

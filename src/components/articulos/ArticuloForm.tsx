@@ -33,6 +33,7 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
   const [stock, setStock] = useState(articulo?.stock ?? 0);
   const [stockMinimo, setStockMinimo] = useState(articulo?.stockMinimo ?? 0);
   const [fotoUrl, setFotoUrl] = useState(articulo?.fotoUrl || "");
+  const [descripcion, setDescripcion] = useState(articulo?.descripcion || "");
   const [notas, setNotas] = useState(articulo?.notas || "");
   const [subiendoFoto, setSubiendoFoto] = useState(false);
 
@@ -65,7 +66,7 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
       categoriaId: categoriaId ? Number(categoriaId) : null,
       costo, markupBarato, markupMedio, markupCaro,
       stock: editing ? undefined : stock,
-      stockMinimo, fotoUrl: fotoUrl || null, notas: notas || null,
+      stockMinimo, fotoUrl: fotoUrl || null, descripcion: descripcion || null, notas: notas || null,
     };
     const url = editing ? `/api/articulos/${articulo!.id}` : "/api/articulos";
     const method = editing ? "PUT" : "POST";
@@ -253,7 +254,21 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
       </div>
 
       <div className="bg-white rounded-2xl border border-[var(--border)] p-5 shadow-sm">
-        <h2 className="font-bold text-lg mb-4">Notas</h2>
+        <h2 className="font-bold text-lg mb-1">Descripción</h2>
+        <p className="text-sm text-[var(--foreground)]/50 mb-4">
+          Se muestra en la página pública del producto y el catálogo.
+        </p>
+        <textarea
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          rows={3}
+          className="w-full px-4 py-3 rounded-xl border-2 border-[var(--border)] focus:border-[var(--brand)] focus:outline-none transition-colors"
+          placeholder="Descripción del producto para el cliente..."
+        />
+      </div>
+
+      <div className="bg-white rounded-2xl border border-[var(--border)] p-5 shadow-sm">
+        <h2 className="font-bold text-lg mb-4">Notas internas</h2>
         <textarea
           value={notas}
           onChange={(e) => setNotas(e.target.value)}

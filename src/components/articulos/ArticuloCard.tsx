@@ -6,6 +6,7 @@ import { ShoppingCart, ImageOff } from "lucide-react";
 import type { Articulo } from "@/types/models";
 import StockBadge from "./StockBadge";
 import PrecioBadges from "./PrecioBadges";
+import { textColorForBg } from "@/lib/colors";
 
 interface Props {
   articulo: Articulo;
@@ -45,8 +46,8 @@ export default function ArticuloCard({ articulo, onVender, index = 0 }: Readonly
         </div>
         {articulo.categoria && (
           <span
-            className="absolute top-2 left-2 px-2.5 py-1 rounded-full text-[11px] font-bold text-white shadow-md backdrop-blur-sm"
-            style={{ backgroundColor: `${articulo.categoria.color}dd` }}
+            className="absolute top-2 left-2 px-2.5 py-1 rounded-full text-[11px] font-bold shadow-md backdrop-blur-sm"
+            style={{ backgroundColor: `${articulo.categoria.color}dd`, color: textColorForBg(articulo.categoria.color) }}
           >
             {articulo.categoria.nombre}
           </span>
@@ -68,7 +69,7 @@ export default function ArticuloCard({ articulo, onVender, index = 0 }: Readonly
           whileTap={{ scale: 0.97 }}
           type="button"
           onClick={() => onVender(articulo)}
-          className="tap mt-auto w-full px-4 py-2.5 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold hover:shadow-md transition-shadow flex items-center justify-center gap-2 btn-glow"
+          className="tap mt-auto w-full px-4 py-3.5 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold hover:shadow-md transition-shadow flex items-center justify-center gap-2 btn-glow"
         >
           <ShoppingCart size={16} aria-hidden="true" />
           Vender

@@ -61,6 +61,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
       precioCaroOverride: !!data.precioCaroOverride,
       stockMinimo: Math.max(0, Math.floor(Number(data.stockMinimo) || 0)),
       fotoUrl: data.fotoUrl || null,
+      descripcion: data.descripcion || null,
       notas: data.notas || null,
     },
     include: { categoria: true },
