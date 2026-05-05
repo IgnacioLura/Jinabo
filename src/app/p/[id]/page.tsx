@@ -49,6 +49,13 @@ export default function PublicArticuloPage() {
   );
   const [error, setError] = useState(false);
 
+  // Limpiar ?modo= de la URL sin recargar
+  useEffect(() => {
+    if (window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
+
   useEffect(() => {
     fetch(`/api/p/${id}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
@@ -75,17 +82,17 @@ export default function PublicArticuloPage() {
 
   return (
     <div className="min-h-screen bg-[#f8f5f0] flex flex-col">
-      {/* Header */}
-      <header className="bg-[#1a2332] px-4 py-3 shadow-md">
-        <div className="max-w-sm mx-auto flex items-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.jpg" alt="Jin Bao Importaciones" className="h-9 w-auto rounded-lg" />
-        </div>
-      </header>
 
       {/* Card */}
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl overflow-hidden">
+      <div className="flex-1 flex items-start justify-center p-4 pt-6">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+          {/* Logo dentro de la card */}
+          <div className="bg-[#1a2332] px-6 py-4 flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.jpg" alt="Jin Bao Importaciones" className="h-16 w-auto rounded-xl" />
+          </div>
+
           {/* Foto */}
           <div className="aspect-square bg-gray-100 flex items-center justify-center relative">
             {articulo.fotoUrl ? (
@@ -96,7 +103,7 @@ export default function PublicArticuloPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <ImageOff size={64} className="text-gray-300" />
+              <ImageOff size={80} className="text-gray-300" />
             )}
             {articulo.categoria && (
               <span
@@ -112,16 +119,14 @@ export default function PublicArticuloPage() {
           </div>
 
           <div className="p-6 space-y-5">
-            <div>
-              <h1 className="text-2xl font-extrabold tracking-tight leading-tight">
-                {articulo.nombre}
-              </h1>
-              {articulo.descripcion && (
-                <p className="mt-1.5 text-sm text-gray-500 leading-relaxed">
-                  {articulo.descripcion}
-                </p>
-              )}
-            </div>
+            <h1 className="text-2xl font-extrabold tracking-tight leading-tight">
+              {articulo.nombre}
+            </h1>
+            {articulo.descripcion && (
+              <p className="text-sm text-gray-500 leading-relaxed">
+                {articulo.descripcion}
+              </p>
+            )}
 
             {/* Selector de modo */}
             <div className="grid grid-cols-3 gap-2">
@@ -129,7 +134,7 @@ export default function PublicArticuloPage() {
                 <button
                   key={key}
                   onClick={() => setModo(key)}
-                  className={`py-2 px-1 rounded-xl text-xs font-bold transition-all border-2 ${
+                  className={`py-2.5 px-1 rounded-xl text-sm font-bold transition-all border-2 ${
                     modo === key
                       ? "bg-gradient-to-br from-orange-500 to-red-600 text-white border-transparent shadow"
                       : "bg-white border-gray-200 text-gray-600 hover:border-orange-300"
@@ -141,11 +146,11 @@ export default function PublicArticuloPage() {
             </div>
 
             {/* Precio */}
-            <div className="text-center py-4 bg-orange-50 rounded-2xl">
-              <p className="text-xs text-gray-400 mb-1 font-medium uppercase tracking-wide">
+            <div className="text-center py-7 bg-orange-50 rounded-2xl">
+              <p className="text-xs text-gray-400 mb-2 font-semibold uppercase tracking-widest">
                 {MODO_LABEL[modo]}
               </p>
-              <p className="text-5xl font-black text-orange-600 tracking-tight">
+              <p className="text-6xl font-black text-orange-600 tracking-tight">
                 {formatearMoneda(precio)}
               </p>
             </div>
