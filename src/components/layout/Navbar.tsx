@@ -24,17 +24,19 @@ export default function Navbar() {
   return (
     <nav className="glass sticky top-0 z-30 border-b border-[var(--glass-border)]">
       <div className="px-4 md:px-8 h-16 flex items-center gap-3">
-        <Link href="/articulos" className="flex items-center gap-2.5 mr-3 group">
-          <motion.span
-            whileHover={{ scale: 1.08, rotate: -3 }}
+        <Link href="/articulos" className="flex items-center gap-2 mr-3 group">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-700 text-white font-black grid place-items-center text-xl shadow-md"
+            className="w-10 h-10 rounded-xl overflow-hidden shadow-md shrink-0"
           >
-            J
-          </motion.span>
-          <span className="font-extrabold text-lg hidden sm:block tracking-tight">
-            Jinbao
-          </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.jpg" alt="Jin Bao" className="w-full h-full object-cover" />
+          </motion.div>
+          <div className="hidden sm:block leading-tight">
+            <p className="font-extrabold text-base tracking-tight leading-none">Jin Bao</p>
+            <p className="text-[10px] text-[var(--foreground)]/50 font-semibold uppercase tracking-widest">Importaciones</p>
+          </div>
         </Link>
 
         <div className="flex-1 flex items-center gap-1 overflow-x-auto">

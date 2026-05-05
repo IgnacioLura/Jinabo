@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ImageOff, Share2, Package, Check } from "lucide-react";
+import { ImageOff, Share2, Check } from "lucide-react";
 
 const SLUG_LABEL: Record<string, string> = {
   mayorista: "Mayorista",
@@ -58,7 +58,7 @@ export default function CatalogoModoPage() {
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data) => {
         setArticulos(data.articulos);
-        document.title = `Catálogo ${label} — Jinabo`;
+        document.title = `Catálogo ${label} — Jin Bao`;
         setCargando(false);
       })
       .catch(() => { setError(true); setCargando(false); });
@@ -81,16 +81,12 @@ export default function CatalogoModoPage() {
   return (
     <div className="min-h-screen bg-[#f8f5f0]">
       {/* Header */}
-      <header className="bg-gradient-to-r from-orange-600 to-red-700 text-white px-4 py-4 shadow-lg sticky top-0 z-10">
+      <header className="bg-[#1a2332] text-white px-4 py-3 shadow-lg sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-white/20 grid place-items-center">
-              <Package size={18} className="text-white" />
-            </div>
-            <div>
-              <p className="font-black text-lg leading-none">Jinabo</p>
-              <p className="text-xs text-white/70 font-medium">{label}</p>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.jpg" alt="Jin Bao Importaciones" className="h-10 w-auto rounded-lg" />
+            <p className="text-sm font-semibold text-white/70">{label}</p>
           </div>
           <button
             onClick={compartir}
@@ -167,7 +163,7 @@ export default function CatalogoModoPage() {
       </main>
 
       <footer className="text-center py-6 text-xs text-gray-400 mt-4">
-        Jinabo · Gestión de inventario
+        Jin Bao Importaciones
       </footer>
     </div>
   );

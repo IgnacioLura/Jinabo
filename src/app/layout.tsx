@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jinabo",
+  title: "Jin Bao Importaciones",
   description: "Gestion de stock y precios",
 };
 

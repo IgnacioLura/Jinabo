@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Package } from "lucide-react";
 
 const MODOS = [
   {
@@ -39,14 +38,10 @@ export default function CatalogoSelectorPage() {
   return (
     <div className="min-h-screen bg-[#f8f5f0] flex flex-col items-center justify-center p-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-10">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 grid place-items-center shadow-lg">
-          <Package size={24} className="text-white" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-black tracking-tight">Jinabo</h1>
-          <p className="text-sm text-gray-500 font-medium">Catálogo de productos</p>
-        </div>
+      <div className="flex flex-col items-center mb-10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.jpg" alt="Jin Bao Importaciones" className="w-36 h-36 rounded-3xl shadow-xl object-cover mb-4" />
+        <p className="text-sm text-gray-500 font-semibold uppercase tracking-widest">Catálogo de productos</p>
       </div>
 
       <p className="text-gray-600 font-semibold mb-6 text-center">
@@ -66,7 +61,7 @@ export default function CatalogoSelectorPage() {
         ))}
       </div>
 
-      <p className="mt-10 text-xs text-gray-400">Jinabo · Gestión de inventario</p>
+      <p className="mt-10 text-xs text-gray-400">Jin Bao Importaciones</p>
     </div>
   );
 }

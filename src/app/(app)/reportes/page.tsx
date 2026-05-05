@@ -433,7 +433,7 @@ export default function ReportesPage() {
           <>
             {/* Header de impresión */}
             <div className="print-only mb-6">
-              <h1 className="text-2xl font-black">Jinabo — Liquidación</h1>
+              <h1 className="text-2xl font-black">Jin Bao Importaciones — Liquidación</h1>
               <p className="text-sm text-gray-500 mt-1">
                 Período: {liquidacion.desde} al {liquidacion.hasta}
               </p>
@@ -500,7 +500,7 @@ export default function ReportesPage() {
             )}
 
             <p className="print-only mt-6 text-xs text-gray-400 text-center">
-              Generado con Jinabo · {new Date().toLocaleDateString("es-AR")}
+              Jin Bao Importaciones · {new Date().toLocaleDateString("es-AR")}
             </p>
           </>
         ) : (

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { ImageOff, Package } from "lucide-react";
+import { ImageOff } from "lucide-react";
 import { formatearMoneda, MODO_LABEL } from "@/lib/precios";
 
 type Modo = "BARATO" | "MEDIO" | "CARO";
@@ -54,7 +54,7 @@ export default function PublicArticuloPage() {
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data) => {
         setArticulo(data);
-        document.title = `${data.nombre} — Jinabo`;
+        document.title = `${data.nombre} — Jin Bao`;
       })
       .catch(() => setError(true));
   }, [id]);
@@ -76,12 +76,10 @@ export default function PublicArticuloPage() {
   return (
     <div className="min-h-screen bg-[#f8f5f0] flex flex-col">
       {/* Header */}
-      <header className="bg-gradient-to-r from-orange-600 to-red-700 text-white px-4 py-3 shadow-md">
+      <header className="bg-[#1a2332] px-4 py-3 shadow-md">
         <div className="max-w-sm mx-auto flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-white/20 grid place-items-center">
-            <Package size={16} className="text-white" />
-          </div>
-          <span className="font-black text-lg">Jinabo</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.jpg" alt="Jin Bao Importaciones" className="h-9 w-auto rounded-lg" />
         </div>
       </header>
 
@@ -156,7 +154,7 @@ export default function PublicArticuloPage() {
       </div>
 
       <footer className="text-center py-4 text-xs text-gray-400">
-        Jinabo · Gestión de inventario
+        Jin Bao Importaciones
       </footer>
     </div>
   );

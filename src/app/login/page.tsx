@@ -53,10 +53,11 @@ function LoginForm() {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", bounce: 0.5 }}
-          className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-700 text-white font-black grid place-items-center text-3xl mx-auto shadow-lg"
+          className="w-20 h-20 rounded-2xl overflow-hidden mx-auto shadow-lg"
           aria-hidden="true"
         >
-          J
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.jpg" alt="Jin Bao" className="w-full h-full object-cover" />
         </motion.div>
 
         <motion.div
@@ -65,7 +66,7 @@ function LoginForm() {
           transition={{ delay: 0.3 }}
           className="text-center mt-5 mb-8"
         >
-          <h1 className="text-3xl font-extrabold tracking-tight">Jinabo</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">Jin Bao Importaciones</h1>
           <p className="text-sm text-[var(--foreground)]/70 mt-1">Ingresá para continuar</p>
         </motion.div>
 
