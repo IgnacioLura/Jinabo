@@ -2,19 +2,34 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Package, Users, BarChart3, Tag, LogOut } from "lucide-react";
+import { Package, Users, BarChart3, Tag, LogOut, UserCog } from "lucide-react";
 
-const LINKS = [
+const BASE_LINKS = [
   { href: "/articulos", label: "Artículos", icon: Package },
   { href: "/modo-cliente", label: "Cliente", icon: Users },
   { href: "/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/categorias", label: "Categorías", icon: Tag },
 ];
 
+const ADMIN_LINKS = [
+  { href: "/usuarios", label: "Usuarios", icon: UserCog },
+];
+
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/sesion")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => d && setRole(d.role))
+      .catch(() => null);
+  }, []);
+
+  const links = role === "admin" ? [...BASE_LINKS, ...ADMIN_LINKS] : BASE_LINKS;
 
   async function logout() {
     await fetch("/api/login", { method: "DELETE" });
@@ -24,7 +39,6 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-30 shadow-lg" style={{ background: "var(--navy)" }}>
       <div className="px-4 md:px-8 h-16 flex items-center gap-3">
-        {/* Logo */}
         <Link href="/articulos" className="flex items-center gap-3 mr-4 shrink-0 group">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -47,9 +61,8 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Nav links */}
         <div className="flex-1 flex items-center gap-1 overflow-x-auto">
-          {LINKS.map((link) => {
+          {links.map((link) => {
             const active = pathname === link.href || pathname.startsWith(link.href + "/");
             const Icon = link.icon;
             return (
@@ -79,7 +92,6 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Logout */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

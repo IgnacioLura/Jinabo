@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calcularPrecios } from "@/lib/precios";
+import { obtenerSesionDeRequest } from "@/lib/auth";
+import { aplicarMarkupUsuario } from "@/lib/markup";
 
 interface Params {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const articulo = await prisma.articulo.findUnique({
     where: { id: Number(id) },
@@ -18,7 +20,9 @@ export async function GET(_req: NextRequest, { params }: Params) {
   if (!articulo) {
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
-  return NextResponse.json(articulo);
+  const sesion = await obtenerSesionDeRequest(req);
+  const markupExtra = sesion?.markupExtra ?? 0;
+  return NextResponse.json(aplicarMarkupUsuario(articulo, markupExtra));
 }
 
 export async function PUT(req: NextRequest, { params }: Params) {

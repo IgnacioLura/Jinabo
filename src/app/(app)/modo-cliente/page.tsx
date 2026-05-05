@@ -41,10 +41,10 @@ export default function ModoClientePage() {
     });
   }, [articulos, q, catId]);
 
-  const modoStyles: Record<ModoPrecio, { gradient: string; text: string; glow: string }> = {
+  const modoStyles: Record<ModoPrecio, { gradient: string; text: string; glow: string; activeText?: string }> = {
     BARATO: { gradient: "from-emerald-500 to-green-600", text: "text-emerald-700", glow: "shadow-emerald-200/50" },
     MEDIO: { gradient: "from-amber-500 to-orange-500", text: "text-amber-700", glow: "shadow-amber-200/50" },
-    CARO: { gradient: "from-rose-500 to-red-600", text: "text-rose-700", glow: "shadow-rose-200/50" },
+    CARO: { gradient: "from-[#FFE600] to-[#FFD000]", text: "text-[#1a3a5c]", glow: "shadow-yellow-200/60", activeText: "text-[#1a3a5c]" },
   };
 
   return (
@@ -63,7 +63,7 @@ export default function ModoClientePage() {
               onClick={() => setModo(m)}
               className={`tap px-4 py-4 rounded-xl font-extrabold text-lg transition-all relative overflow-hidden ${
                 modo === m
-                  ? `bg-gradient-to-r ${modoStyles[m].gradient} text-white shadow-lg ${modoStyles[m].glow}`
+                  ? `bg-gradient-to-r ${modoStyles[m].gradient} ${modoStyles[m].activeText ?? "text-white"} shadow-lg ${modoStyles[m].glow}`
                   : "bg-white text-[var(--foreground)]/60 hover:bg-[var(--surface-soft)] border border-[var(--border)]"
               }`}
             >
@@ -74,7 +74,16 @@ export default function ModoClientePage() {
                   transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                 />
               )}
-              <span className="relative z-10">{MODO_LABEL[m]}</span>
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {m === "CARO" && (
+                  <svg width="18" height="14" viewBox="0 0 36 28" fill="none" aria-hidden="true">
+                    <path d="M2 4h4.5l5.5 15h16l4-12H10.5" stroke={modo === m ? "#1A3A5C" : "#888"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                    <circle cx="14" cy="25" r="2.5" fill={modo === m ? "#1A3A5C" : "#888"}/>
+                    <circle cx="26" cy="25" r="2.5" fill={modo === m ? "#1A3A5C" : "#888"}/>
+                  </svg>
+                )}
+                {MODO_LABEL[m]}
+              </span>
             </motion.button>
           ))}
         </div>

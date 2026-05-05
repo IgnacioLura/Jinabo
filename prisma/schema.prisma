@@ -63,6 +63,14 @@ enum ModoPrecio {
   CARO
 }
 
+model User {
+  id           Int    @id @default(autoincrement())
+  username     String @unique
+  passwordHash String
+  role         String @default("user")
+  markupExtra  Float  @default(0)
+}
+
 model Movimiento {
   id             Int             @id @default(autoincrement())
   articuloId     Int

@@ -1,12 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { passwordCorrecta, crearTokenSesion, AUTH_COOKIE } from "@/lib/auth";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { crearTokenSesion, AUTH_COOKIE } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json().catch(() => ({ password: "" }));
-  if (!passwordCorrecta(password)) {
-    return NextResponse.json({ error: "Contraseña incorrecta" }, { status: 401 });
+  const { username, password } = await req.json().catch(() => ({ username: "", password: "" }));
+
+  if (!username || !password) {
+    return NextResponse.json({ error: "Credenciales incorrectas" }, { status: 401 });
   }
-  const token = await crearTokenSesion();
+
+  const user = await prisma.user.findUnique({ where: { username } });
+  if (!user) {
+    return NextResponse.json({ error: "Credenciales incorrectas" }, { status: 401 });
+  }
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) {
+    return NextResponse.json({ error: "Credenciales incorrectas" }, { status: 401 });
+  }
+
+  const token = await crearTokenSesion({
+    username: user.username,
+    role: user.role,
+    markupExtra: user.markupExtra,
+  });
+
   const res = NextResponse.json({ ok: true });
   res.cookies.set(AUTH_COOKIE, token, {
     httpOnly: true,

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calcularPrecios } from "@/lib/precios";
+import { obtenerSesionDeRequest } from "@/lib/auth";
+import { aplicarMarkupUsuario } from "@/lib/markup";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -21,7 +23,10 @@ export async function GET(req: NextRequest) {
     ? articulos.filter((a) => a.stock <= a.stockMinimo)
     : articulos;
 
-  return NextResponse.json(filtrados);
+  const sesion = await obtenerSesionDeRequest(req);
+  const markupExtra = sesion?.markupExtra ?? 0;
+
+  return NextResponse.json(filtrados.map((a) => aplicarMarkupUsuario(a, markupExtra)));
 }
 
 export async function POST(req: NextRequest) {
