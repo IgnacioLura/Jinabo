@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ImageOff, Share2, Check } from "lucide-react";
+import { ImageOff, Share2, Check, Package } from "lucide-react";
 
 const SLUG_LABEL: Record<string, string> = {
   mayorista: "Mayorista",
