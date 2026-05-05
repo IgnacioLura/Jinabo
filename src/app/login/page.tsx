@@ -35,11 +35,11 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen grid place-items-center p-6 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-orange-200/40 to-red-200/30 blur-3xl" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-amber-200/30 to-orange-200/20 blur-3xl" />
+    <div className="min-h-screen grid place-items-center p-6 relative overflow-hidden" style={{ background: "var(--navy)" }}>
+      {/* Blobs de fondo */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full opacity-20" style={{ background: "radial-gradient(circle, var(--brand) 0%, transparent 70%)" }} />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full opacity-10" style={{ background: "radial-gradient(circle, var(--brand) 0%, transparent 70%)" }} />
       </div>
 
       <motion.form
@@ -47,13 +47,14 @@ function LoginForm() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         onSubmit={submit}
-        className="glass rounded-3xl p-8 w-full max-w-md shadow-xl"
+        className="rounded-3xl p-8 w-full max-w-md shadow-2xl"
+        style={{ background: "var(--navy-light)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", bounce: 0.5 }}
-          className="w-20 h-20 rounded-2xl overflow-hidden mx-auto shadow-lg"
+          className="w-28 h-28 rounded-2xl overflow-hidden mx-auto shadow-xl"
           aria-hidden="true"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -66,8 +67,11 @@ function LoginForm() {
           transition={{ delay: 0.3 }}
           className="text-center mt-5 mb-8"
         >
-          <h1 className="text-2xl font-extrabold tracking-tight">Jin Bao Importaciones</h1>
-          <p className="text-sm text-[var(--foreground)]/70 mt-1">Ingresá para continuar</p>
+          <h1 className="text-2xl font-black tracking-tight text-white">Jin Bao</h1>
+          <p className="text-sm font-bold uppercase tracking-widest mt-0.5" style={{ color: "var(--brand)" }}>
+            Importaciones
+          </p>
+          <p className="text-sm text-white/40 mt-3">Ingresá para continuar</p>
         </motion.div>
 
         <motion.div
@@ -76,7 +80,7 @@ function LoginForm() {
           transition={{ delay: 0.4 }}
         >
           <label className="block">
-            <span className="text-sm font-semibold flex items-center gap-1.5">
+            <span className="text-sm font-semibold flex items-center gap-1.5 text-white/70">
               <Lock size={14} aria-hidden="true" />
               Contraseña
             </span>
@@ -87,13 +91,17 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
                 aria-describedby={error ? "login-error" : undefined}
-                className="w-full px-4 py-3.5 pr-12 text-lg rounded-xl border-2 border-[var(--border)] focus:border-[var(--brand)] focus:outline-none focus:ring-2 focus:ring-orange-500/30 bg-white/80 transition-colors"
+                className="w-full px-4 py-3.5 pr-12 text-lg rounded-xl border-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 transition-colors"
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  borderColor: "rgba(255,255,255,0.15)",
+                }}
               />
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
                 aria-label={showPw ? "Ocultar contraseña" : "Mostrar contraseña"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 text-[var(--foreground)]/40 hover:text-[var(--foreground)]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 text-white/30 hover:text-white/70"
               >
                 {showPw ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
               </button>
@@ -106,7 +114,8 @@ function LoginForm() {
               role="alert"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="mt-3 text-sm text-rose-600 bg-rose-50 px-4 py-2.5 rounded-xl border border-rose-200 font-medium"
+              className="mt-3 text-sm font-medium px-4 py-2.5 rounded-xl border"
+              style={{ background: "rgba(230,57,0,0.15)", color: "#ff8c6b", borderColor: "rgba(230,57,0,0.3)" }}
             >
               {error}
             </motion.p>
@@ -117,7 +126,8 @@ function LoginForm() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading || !password}
-            className="tap mt-6 w-full px-4 py-4 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold text-lg disabled:opacity-40 shadow-md flex items-center justify-center gap-2 btn-glow"
+            className="tap mt-6 w-full px-4 py-4 text-white rounded-xl font-bold text-lg disabled:opacity-40 shadow-md flex items-center justify-center gap-2 btn-glow"
+            style={{ background: "var(--brand)" }}
           >
             {loading ? (
               <Spinner size={20} />
