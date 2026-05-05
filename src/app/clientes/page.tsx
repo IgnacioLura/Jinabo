@@ -1,9 +1,6 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { ImageOff, Search } from "lucide-react";
 import { formatearMoneda } from "@/lib/precios";
 
@@ -39,12 +36,11 @@ function modoNum(m: Modo) {
 }
 
 export default function ClientesPage() {
-  const searchParams = useSearchParams();
-  const mParam = searchParams.get("m");
-
-  const [modo] = useState<Modo>(
-    mParam && NUM_A_MODO[mParam] ? NUM_A_MODO[mParam] : "MEDIO",
-  );
+  const [modo] = useState<Modo>(() => {
+    if (typeof window === "undefined") return "MEDIO";
+    const m = new URLSearchParams(window.location.search).get("m") ?? "";
+    return NUM_A_MODO[m] ?? "MEDIO";
+  });
   const [articulos, setArticulos] = useState<ArticuloPublico[]>([]);
   const [q, setQ] = useState("");
   const [cargando, setCargando] = useState(true);
