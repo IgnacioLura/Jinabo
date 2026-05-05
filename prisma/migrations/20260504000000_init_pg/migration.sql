@@ -1,6 +1,3 @@
--- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
-
 -- CreateEnum
 CREATE TYPE "TipoMovimiento" AS ENUM ('ENTRADA', 'SALIDA', 'VENTA', 'AJUSTE');
 
