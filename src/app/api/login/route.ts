@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
   }
 
   const token = await crearTokenSesion({
+    userId: user.id,
     username: user.username,
     role: user.role,
     markupExtra: user.markupExtra,

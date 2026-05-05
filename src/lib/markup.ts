@@ -1,5 +1,4 @@
 export function aplicarMarkupUsuario<T extends {
-  costo: number;
   precioBarato: number;
   precioMedio: number;
   precioCaro: number;
@@ -9,9 +8,8 @@ export function aplicarMarkupUsuario<T extends {
   const r = (v: number) => Math.round(v * factor * 100) / 100;
   return {
     ...articulo,
-    costo: r(articulo.costo),
     precioBarato: r(articulo.precioBarato),
     precioMedio: r(articulo.precioMedio),
-    // precioCaro is fixed — ML price never changes with user markup
+    // costo and precioCaro are never touched by user markup
   };
 }

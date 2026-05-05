@@ -25,6 +25,7 @@ import {
 } from "recharts";
 
 interface Reporte {
+  esAdmin: boolean;
   stockValorizado: number;
   ventasMonto: number;
   ventasUnidades: number;
@@ -127,15 +128,7 @@ export default function ReportesPage() {
 
   if (!data) return null;
 
-  const kpis = [
-    {
-      label: "Stock valorizado",
-      value: formatearMoneda(data.stockValorizado),
-      icon: DollarSign,
-      gradient: "from-blue-500 to-indigo-600",
-      bg: "from-blue-50 to-indigo-50",
-      border: "border-blue-200",
-    },
+  const kpisBase = [
     {
       label: "Ventas (30 dias)",
       value: formatearMoneda(data.ventasMonto),
@@ -152,6 +145,17 @@ export default function ReportesPage() {
       bg: "from-amber-50 to-orange-50",
       border: "border-amber-200",
     },
+  ];
+
+  const kpisAdmin = [
+    {
+      label: "Stock valorizado",
+      value: formatearMoneda(data.stockValorizado),
+      icon: DollarSign,
+      gradient: "from-blue-500 to-indigo-600",
+      bg: "from-blue-50 to-indigo-50",
+      border: "border-blue-200",
+    },
     {
       label: "Total articulos",
       value: String(data.cantidadArticulos),
@@ -162,6 +166,8 @@ export default function ReportesPage() {
     },
   ];
 
+  const kpis = data.esAdmin ? [...kpisAdmin, ...kpisBase] : kpisBase;
+
   return (
     <div className="px-4 md:px-8 py-6 max-w-[1400px] mx-auto">
       <motion.h1
@@ -169,7 +175,7 @@ export default function ReportesPage() {
         animate={{ opacity: 1, y: 0 }}
         className="text-3xl font-extrabold tracking-tight mb-6 no-print"
       >
-        Reportes
+        {data.esAdmin ? "Reportes" : "Mis Ventas"}
       </motion.h1>
 
       {/* KPI Cards — ocultos en impresión */}
@@ -300,8 +306,8 @@ export default function ReportesPage() {
         </motion.div>
       </div>
 
-      {/* Alertas de stock bajo — ocultas en impresión */}
-      <motion.div
+      {/* Alertas de stock bajo — solo admin */}
+      {data.esAdmin && <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -366,10 +372,10 @@ export default function ReportesPage() {
             </table>
           </div>
         )}
-      </motion.div>
+      </motion.div>}
 
-      {/* ─── LIQUIDACIÓN ─────────────────────────────────── */}
-      <motion.div
+      {/* ─── LIQUIDACIÓN — solo admin ─────────────────────── */}
+      {data.esAdmin && <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
@@ -510,7 +516,7 @@ export default function ReportesPage() {
             </p>
           )
         )}
-      </motion.div>
+      </motion.div>}
     </div>
   );
 }

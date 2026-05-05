@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
   return NextResponse.json({
+    userId: sesion.userId,
     username: sesion.username,
     role: sesion.role,
     markupExtra: sesion.markupExtra,

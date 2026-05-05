@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calcularNuevoStock } from "@/lib/stock";
 import { TipoMovimiento, ModoPrecio } from "@prisma/client";
+import { obtenerSesionDeRequest } from "@/lib/auth";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -10,6 +11,7 @@ interface Params {
 export async function POST(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const articuloId = Number(id);
+  const sesion = await obtenerSesionDeRequest(req);
   const body = await req.json();
 
   const tipo = body.tipo as TipoMovimiento;
@@ -47,6 +49,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     prisma.movimiento.create({
       data: {
         articuloId,
+        userId: sesion?.userId ?? null,
         tipo,
         cantidad,
         precioUnitario,

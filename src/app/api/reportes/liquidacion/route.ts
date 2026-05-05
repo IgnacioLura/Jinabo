@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { obtenerSesionDeRequest } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const sesion = await obtenerSesionDeRequest(req);
+  if (sesion?.role !== "admin") {
+    return NextResponse.json({ error: "Sin acceso" }, { status: 403 });
+  }
+
   const { searchParams } = req.nextUrl;
   const desdeParam = searchParams.get("desde");
   const hastaParam = searchParams.get("hasta");

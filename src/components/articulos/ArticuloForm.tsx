@@ -29,7 +29,7 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
   const [costo, setCosto] = useState(articulo?.costo ?? 0);
   const [markupBarato, setMarkupBarato] = useState(articulo?.markupBarato ?? 1.20);
   const [markupMedio, setMarkupMedio] = useState(articulo?.markupMedio ?? 2.00);
-  const [markupCaro, setMarkupCaro] = useState(articulo?.markupCaro ?? 2.50);
+  const [precioML, setPrecioML] = useState(articulo?.precioCaro ?? 0);
   const [stock, setStock] = useState(articulo?.stock ?? 0);
   const [stockMinimo, setStockMinimo] = useState(articulo?.stockMinimo ?? 0);
   const [fotoUrl, setFotoUrl] = useState(articulo?.fotoUrl || "");
@@ -38,7 +38,8 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
   const [subiendoFoto, setSubiendoFoto] = useState(false);
 
   const precios = calcularPrecios({
-    costo, markupBarato, markupMedio, markupCaro,
+    costo, markupBarato, markupMedio, markupCaro: 1,
+    precioCaroOverride: true, precioCaro: precioML,
   });
 
   async function subirFoto(file: File) {
@@ -64,7 +65,8 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
     const payload = {
       nombre, sku: sku || null,
       categoriaId: categoriaId ? Number(categoriaId) : null,
-      costo, markupBarato, markupMedio, markupCaro,
+      costo, markupBarato, markupMedio, markupCaro: 1,
+      precioCaro: precioML, precioCaroOverride: true,
       stock: editing ? undefined : stock,
       stockMinimo, fotoUrl: fotoUrl || null, descripcion: descripcion || null, notas: notas || null,
     };
@@ -104,7 +106,6 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
   const markupRows = [
     { label: MODO_LABEL.BARATO, m: markupBarato, set: setMarkupBarato, p: precios.precioBarato, gradient: "from-emerald-50 to-emerald-100", border: "border-emerald-200", text: "text-emerald-800" },
     { label: MODO_LABEL.MEDIO, m: markupMedio, set: setMarkupMedio, p: precios.precioMedio, gradient: "from-amber-50 to-amber-100", border: "border-amber-200", text: "text-amber-800" },
-    { label: MODO_LABEL.CARO, m: markupCaro, set: setMarkupCaro, p: precios.precioCaro, gradient: "from-rose-50 to-rose-100", border: "border-rose-200", text: "text-rose-800" },
   ];
 
   return (
@@ -221,6 +222,22 @@ export default function ArticuloForm({ articulo, categorias }: Readonly<Props>) 
               <div className={`mt-3 text-xl font-black tabular-nums ${row.text}`}>{formatearMoneda(row.p)}</div>
             </div>
           ))}
+          {/* ML card — precio fijo, sin markup */}
+          <div className="p-4 rounded-2xl border bg-gradient-to-br from-[#fff9c4] to-[#fff176] border-[#ffe600]/60">
+            <div className="text-xs uppercase font-bold tracking-wider text-[#1a3a5c] opacity-70">
+              {MODO_LABEL.CARO}
+            </div>
+            <label className="block mt-2">
+              <span className="text-xs font-medium text-[#1a3a5c]">Precio fijo</span>
+              <input
+                type="number" step="0.01" min="0"
+                value={precioML}
+                onChange={(e) => setPrecioML(parseFloat(e.target.value) || 0)}
+                className="mt-1 w-full h-10 px-3 tabular-nums rounded-lg border border-white/60 bg-white/80 focus:bg-white focus:outline-none transition-colors"
+              />
+            </label>
+            <div className="mt-3 text-xl font-black tabular-nums text-[#1a3a5c]">{formatearMoneda(precioML)}</div>
+          </div>
         </div>
       </div>
 

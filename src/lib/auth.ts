@@ -5,6 +5,7 @@ const COOKIE_NAME = "ci_session";
 const ALG = "HS256";
 
 export interface SesionPayload {
+  userId: number;
   username: string;
   role: string;
   markupExtra: number;
@@ -21,6 +22,7 @@ function getSecret(): Uint8Array {
 export async function crearTokenSesion(user: SesionPayload): Promise<string> {
   return new SignJWT({
     sub: user.username,
+    userId: user.userId,
     role: user.role,
     markupExtra: user.markupExtra,
   })
@@ -34,6 +36,7 @@ export async function obtenerSesion(token: string): Promise<SesionPayload | null
   try {
     const { payload } = await jwtVerify(token, getSecret());
     return {
+      userId: Number(payload.userId ?? 0),
       username: String(payload.sub ?? ""),
       role: String(payload.role ?? "user"),
       markupExtra: Number(payload.markupExtra ?? 0),

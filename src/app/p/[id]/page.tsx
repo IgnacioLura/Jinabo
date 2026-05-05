@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { ImageOff } from "lucide-react";
-import { formatearMoneda, MODO_LABEL } from "@/lib/precios";
+import { formatearMoneda } from "@/lib/precios";
 
 type Modo = "BARATO" | "MEDIO" | "CARO";
 
@@ -18,11 +18,15 @@ interface ArticuloPublico {
   categoria: { nombre: string; color: string } | null;
 }
 
-const MODOS: { key: Modo; label: string }[] = [
-  { key: "BARATO", label: "Mayorista" },
-  { key: "MEDIO", label: "Minorista" },
-  { key: "CARO", label: "Mercado Libre" },
-];
+const NUM_A_MODO: Record<string, Modo> = {
+  "1": "BARATO",
+  "2": "MEDIO",
+  "3": "CARO",
+  // backward compat
+  BARATO: "BARATO",
+  MEDIO: "MEDIO",
+  CARO: "CARO",
+};
 
 function precioSegunModo(a: ArticuloPublico, modo: Modo) {
   if (modo === "BARATO") return a.precioBarato;
@@ -41,11 +45,11 @@ function textColorForBg(hex: string): string {
 export default function PublicArticuloPage() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
-  const modoParam = searchParams.get("modo") as Modo | null;
+  const modoParam = searchParams.get("modo");
 
   const [articulo, setArticulo] = useState<ArticuloPublico | null>(null);
-  const [modo, setModo] = useState<Modo>(
-    modoParam && ["BARATO", "MEDIO", "CARO"].includes(modoParam) ? modoParam : "MEDIO",
+  const [modo] = useState<Modo>(
+    modoParam && NUM_A_MODO[modoParam] ? NUM_A_MODO[modoParam] : "MEDIO",
   );
   const [error, setError] = useState(false);
 
@@ -84,13 +88,13 @@ export default function PublicArticuloPage() {
     <div className="min-h-screen bg-[#f8f5f0] flex flex-col">
 
       {/* Card */}
-      <div className="flex-1 flex items-start justify-center p-4 pt-6">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="flex-1 flex items-start justify-center p-4 pt-6 md:p-8 md:pt-10">
+        <div className="w-full max-w-md sm:max-w-lg md:max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden">
 
           {/* Logo dentro de la card */}
           <div className="bg-[#1a2332] px-6 py-4 flex justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.jpg" alt="Jin Bao Importaciones" className="h-16 w-auto rounded-xl" />
+            <img src="/logo.jpg" alt="Jin Bao Importaciones" className="h-16 md:h-20 w-auto rounded-xl" />
           </div>
 
           {/* Foto */}
@@ -118,39 +122,19 @@ export default function PublicArticuloPage() {
             )}
           </div>
 
-          <div className="p-6 space-y-5">
-            <h1 className="text-2xl font-extrabold tracking-tight leading-tight">
+          <div className="p-6 md:p-8 space-y-5">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
               {articulo.nombre}
             </h1>
             {articulo.descripcion && (
-              <p className="text-sm text-gray-500 leading-relaxed">
+              <p className="text-sm md:text-base text-gray-500 leading-relaxed">
                 {articulo.descripcion}
               </p>
             )}
 
-            {/* Selector de modo */}
-            <div className="grid grid-cols-3 gap-2">
-              {MODOS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setModo(key)}
-                  className={`py-2.5 px-1 rounded-xl text-sm font-bold transition-all border-2 ${
-                    modo === key
-                      ? "bg-gradient-to-br from-orange-500 to-red-600 text-white border-transparent shadow"
-                      : "bg-white border-gray-200 text-gray-600 hover:border-orange-300"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
             {/* Precio */}
-            <div className="text-center py-7 bg-orange-50 rounded-2xl">
-              <p className="text-xs text-gray-400 mb-2 font-semibold uppercase tracking-widest">
-                {MODO_LABEL[modo]}
-              </p>
-              <p className="text-6xl font-black text-orange-600 tracking-tight">
+            <div className="text-center py-8 md:py-10 bg-orange-50 rounded-2xl">
+              <p className="text-7xl md:text-8xl font-black text-orange-600 tracking-tight">
                 {formatearMoneda(precio)}
               </p>
             </div>

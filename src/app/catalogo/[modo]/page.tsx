@@ -121,7 +121,7 @@ export default function CatalogoModoPage() {
             {articulos.map((a) => (
               <a
                 key={a.id}
-                href={`/p/${a.id}?modo=${modoKey}`}
+                href={`/p/${a.id}?modo=${modoKey === "BARATO" ? "1" : modoKey === "MEDIO" ? "2" : "3"}`}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow block"
               >
                 <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">

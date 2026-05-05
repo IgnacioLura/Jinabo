@@ -1,28 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { obtenerSesionDeRequest } from "@/lib/auth";
 
-export async function GET() {
-  const articulos = await prisma.articulo.findMany({
-    include: { categoria: true },
-  });
+export async function GET(req: NextRequest) {
+  const sesion = await obtenerSesionDeRequest(req);
+  const esAdmin = sesion?.role === "admin";
 
   const desde = new Date();
   desde.setDate(desde.getDate() - 30);
 
+  const ventasWhere = esAdmin
+    ? { tipo: "VENTA" as const, fecha: { gte: desde } }
+    : { tipo: "VENTA" as const, fecha: { gte: desde }, userId: sesion?.userId ?? -1 };
+
   const ventas = await prisma.movimiento.findMany({
-    where: { tipo: "VENTA", fecha: { gte: desde } },
+    where: ventasWhere,
     include: { articulo: true },
     orderBy: { fecha: "asc" },
   });
 
-  const stockValorizado = articulos.reduce(
-    (acc, a) => acc + a.costo * a.stock,
-    0,
-  );
-  const ventasMonto = ventas.reduce(
-    (acc, v) => acc + (v.precioUnitario || 0) * v.cantidad,
-    0,
-  );
+  const ventasMonto = ventas.reduce((acc, v) => acc + (v.precioUnitario || 0) * v.cantidad, 0);
   const ventasUnidades = ventas.reduce((acc, v) => acc + v.cantidad, 0);
 
   const ventasPorDia = new Map<string, number>();
@@ -37,11 +34,7 @@ export async function GET() {
 
   const porArticulo = new Map<number, { nombre: string; unidades: number; monto: number }>();
   for (const v of ventas) {
-    const cur = porArticulo.get(v.articuloId) || {
-      nombre: v.articulo.nombre,
-      unidades: 0,
-      monto: 0,
-    };
+    const cur = porArticulo.get(v.articuloId) || { nombre: v.articulo.nombre, unidades: 0, monto: 0 };
     cur.unidades += v.cantidad;
     cur.monto += (v.precioUnitario || 0) * v.cantidad;
     porArticulo.set(v.articuloId, cur);
@@ -49,6 +42,22 @@ export async function GET() {
   const topVendidos = Array.from(porArticulo.values())
     .sort((a, b) => b.unidades - a.unidades)
     .slice(0, 10);
+
+  if (!esAdmin) {
+    return NextResponse.json({
+      esAdmin: false,
+      stockValorizado: 0,
+      ventasMonto: Math.round(ventasMonto * 100) / 100,
+      ventasUnidades,
+      cantidadArticulos: 0,
+      serieVentas,
+      topVendidos,
+      stockBajo: [],
+    });
+  }
+
+  const articulos = await prisma.articulo.findMany({ include: { categoria: true } });
+  const stockValorizado = articulos.reduce((acc, a) => acc + a.costo * a.stock, 0);
 
   const stockBajo = articulos
     .filter((a) => a.stock <= a.stockMinimo && a.stockMinimo > 0)
@@ -63,6 +72,7 @@ export async function GET() {
     }));
 
   return NextResponse.json({
+    esAdmin: true,
     stockValorizado: Math.round(stockValorizado * 100) / 100,
     ventasMonto: Math.round(ventasMonto * 100) / 100,
     ventasUnidades,

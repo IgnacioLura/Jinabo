@@ -64,17 +64,20 @@ enum ModoPrecio {
 }
 
 model User {
-  id           Int    @id @default(autoincrement())
-  username     String @unique
+  id           Int         @id @default(autoincrement())
+  username     String      @unique
   passwordHash String
-  role         String @default("user")
-  markupExtra  Float  @default(0)
+  role         String      @default("user")
+  markupExtra  Float       @default(0)
+  movimientos  Movimiento[]
 }
 
 model Movimiento {
   id             Int             @id @default(autoincrement())
   articuloId     Int
   articulo       Articulo        @relation(fields: [articuloId], references: [id], onDelete: Cascade)
+  userId         Int?
+  user           User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   tipo           TipoMovimiento
   cantidad       Int
   precioUnitario Float?

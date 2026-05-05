@@ -125,7 +125,8 @@ export default function ArticuloDetalleClient({
                     <button
                       key={m}
                       onClick={() => {
-                        const url = `${window.location.origin}/p/${articulo.id}?modo=${m}`;
+                        const modoNum = m === "BARATO" ? "1" : m === "MEDIO" ? "2" : "3";
+                        const url = `${window.location.origin}/p/${articulo.id}?modo=${modoNum}`;
                         navigator.clipboard.writeText(url);
                         setShareCopiado(m);
                         setTimeout(() => { setShareCopiado(null); setShareOpen(false); }, 1500);

@@ -2,10 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ImageOff } from "lucide-react";
+import { Search, ImageOff, Copy, Check } from "lucide-react";
+import { toast } from "sonner";
 import type { Articulo, Categoria } from "@/types/models";
 import type { ModoPrecio } from "@/lib/precios";
 import { MODO_LABEL, MODOS, formatearMoneda, precioPorModo } from "@/lib/precios";
+
+const MODO_NUM: Record<ModoPrecio, string> = { BARATO: "1", MEDIO: "2", CARO: "3" };
 
 export default function ModoClientePage() {
   const [articulos, setArticulos] = useState<Articulo[]>([]);
@@ -14,6 +17,15 @@ export default function ModoClientePage() {
   const [q, setQ] = useState("");
   const [catId, setCatId] = useState<number | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [copiado, setCopiado] = useState<ModoPrecio | null>(null);
+
+  function copiarLink(m: ModoPrecio) {
+    const url = `${window.location.origin}/clientes?m=${MODO_NUM[m]}`;
+    navigator.clipboard.writeText(url);
+    setCopiado(m);
+    toast.success(`Link ${MODO_LABEL[m]} copiado`);
+    setTimeout(() => setCopiado(null), 2000);
+  }
 
   useEffect(() => {
     async function cargar() {
@@ -49,6 +61,29 @@ export default function ModoClientePage() {
 
   return (
     <div className="px-4 md:px-8 py-6 max-w-[1400px] mx-auto">
+      {/* Links de catalogo para compartir */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass rounded-2xl p-3 mb-4 shadow-sm"
+      >
+        <p className="text-xs font-bold text-[var(--foreground)]/40 uppercase tracking-wider mb-2 px-1">
+          Links de catálogo
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          {MODOS.map((m) => (
+            <button
+              key={m}
+              onClick={() => copiarLink(m)}
+              className="tap flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-[var(--border)] bg-white hover:bg-[var(--surface-soft)] transition-colors text-sm font-semibold"
+            >
+              {copiado === m ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} className="text-[var(--foreground)]/40" />}
+              {MODO_LABEL[m]}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
       {/* Toggle de modo de precio */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
