@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingCart, ArrowDownToLine, ArrowUpFromLine, SlidersHorizontal, ImageOff, Share2, Check } from "lucide-react";
+import { ArrowLeft, ShoppingCart, ArrowDownToLine, ArrowUpFromLine, SlidersHorizontal, ImageOff, Share2, Check, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import type { ArticuloDetalle, Categoria } from "@/types/models";
 import StockBadge from "./StockBadge";
 import PrecioBadges from "./PrecioBadges";
 import MovimientoModal from "./MovimientoModal";
+import AsignarModal from "./AsignarModal";
 import ArticuloForm from "./ArticuloForm";
 import Spinner from "@/components/Spinner";
 import { TIPO_COLOR, TIPO_LABEL } from "@/lib/stock";
@@ -21,6 +22,8 @@ interface Props {
 
 type Tab = "datos" | "movimientos" | "stats";
 
+interface Sesion { role: string; userId: number; }
+
 export default function ArticuloDetalleClient({
   articuloInicial,
   categorias,
@@ -28,9 +31,16 @@ export default function ArticuloDetalleClient({
   const [articulo, setArticulo] = useState(articuloInicial);
   const [tab, setTab] = useState<Tab>("datos");
   const [movModal, setMovModal] = useState<null | "VENTA" | "ENTRADA" | "SALIDA" | "AJUSTE">(null);
+  const [asignarOpen, setAsignarOpen] = useState(false);
+  const [sesion, setSesion] = useState<Sesion | null>(null);
   const [refrescando, setRefrescando] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareCopiado, setShareCopiado] = useState<ModoPrecio | null>(null);
+  const esAdmin = sesion?.role === "admin";
+
+  useEffect(() => {
+    fetch("/api/sesion").then((r) => r.ok ? r.json() : null).then(setSesion);
+  }, []);
 
   async function refrescar() {
     setRefrescando(true);
@@ -54,8 +64,7 @@ export default function ArticuloDetalleClient({
     .filter((m) => m.tipo === "VENTA")
     .reduce((acc, m) => acc + (m.precioUnitario || 0) * m.cantidad, 0);
 
-  const actionButtons = [
-    { tipo: "VENTA" as const, label: "Vender", icon: ShoppingCart, gradient: "from-orange-600 to-red-700" },
+  const adminButtons = [
     { tipo: "ENTRADA" as const, label: "Ingreso", icon: ArrowDownToLine, gradient: "from-emerald-500 to-green-600" },
     { tipo: "SALIDA" as const, label: "Salida", icon: ArrowUpFromLine, gradient: "from-orange-500 to-amber-600" },
     { tipo: "AJUSTE" as const, label: "Ajuste", icon: SlidersHorizontal, gradient: "from-violet-500 to-purple-600" },
@@ -155,22 +164,47 @@ export default function ArticuloDetalleClient({
             Costo: <strong className="tabular-nums">{formatearMoneda(articulo.costo)}</strong>
           </p>
 
-          <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">
-            {actionButtons.map((btn) => {
-              const Icon = btn.icon;
-              return (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {/* Vender — siempre visible */}
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => setMovModal("VENTA")}
+              className="tap py-3 px-4 rounded-xl bg-gradient-to-r from-orange-600 to-red-700 text-white font-bold shadow-sm flex items-center justify-center gap-1.5 btn-glow"
+            >
+              <ShoppingCart size={16} />
+              Vender
+            </motion.button>
+
+            {/* Admin: ingreso, salida, ajuste, asignar */}
+            {esAdmin && (
+              <>
+                {adminButtons.map((btn) => {
+                  const Icon = btn.icon;
+                  return (
+                    <motion.button
+                      key={btn.tipo}
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => setMovModal(btn.tipo)}
+                      className={`tap py-3 px-4 rounded-xl bg-gradient-to-r ${btn.gradient} text-white font-bold shadow-sm flex items-center justify-center gap-1.5 btn-glow`}
+                    >
+                      <Icon size={16} />
+                      {btn.label}
+                    </motion.button>
+                  );
+                })}
                 <motion.button
-                  key={btn.tipo}
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
-                  onClick={() => setMovModal(btn.tipo)}
-                  className={`tap py-3 rounded-xl bg-gradient-to-r ${btn.gradient} text-white font-bold shadow-sm flex items-center justify-center gap-1.5 btn-glow`}
+                  onClick={() => setAsignarOpen(true)}
+                  className="tap py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-700 text-white font-bold shadow-sm flex items-center justify-center gap-1.5"
                 >
-                  <Icon size={16} />
-                  {btn.label}
+                  <UserPlus size={16} />
+                  Asignar
                 </motion.button>
-              );
-            })}
+              </>
+            )}
           </div>
         </div>
       </motion.div>
@@ -286,6 +320,18 @@ export default function ArticuloDetalleClient({
           tipoInicial={movModal}
           onClose={() => setMovModal(null)}
           onConfirmado={onConfirmado}
+          role={sesion?.role}
+          miStock={articulo.miStock}
+        />
+      )}
+
+      {asignarOpen && esAdmin && (
+        <AsignarModal
+          articuloId={articulo.id}
+          articuloNombre={articulo.nombre}
+          stockTotal={articulo.stock}
+          onClose={() => setAsignarOpen(false)}
+          onAsignado={refrescar}
         />
       )}
     </div>

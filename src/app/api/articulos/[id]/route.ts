@@ -10,8 +10,10 @@ interface Params {
 
 export async function GET(req: NextRequest, { params }: Params) {
   const { id } = await params;
+  const articuloId = Number(id);
+
   const articulo = await prisma.articulo.findUnique({
-    where: { id: Number(id) },
+    where: { id: articuloId },
     include: {
       categoria: true,
       movimientos: { orderBy: { fecha: "desc" }, take: 50 },
@@ -20,9 +22,20 @@ export async function GET(req: NextRequest, { params }: Params) {
   if (!articulo) {
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
+
   const sesion = await obtenerSesionDeRequest(req);
   const markupExtra = sesion?.markupExtra ?? 0;
-  return NextResponse.json(aplicarMarkupUsuario(articulo, markupExtra));
+  const esAdmin = sesion?.role === "admin";
+  const withMarkup = aplicarMarkupUsuario(articulo, markupExtra);
+
+  if (!esAdmin && sesion?.userId) {
+    const stockUser = await prisma.stockUsuario.findUnique({
+      where: { userId_articuloId: { userId: sesion.userId, articuloId } },
+    });
+    return NextResponse.json({ ...withMarkup, miStock: stockUser?.cantidad ?? 0 });
+  }
+
+  return NextResponse.json(withMarkup);
 }
 
 export async function PUT(req: NextRequest, { params }: Params) {

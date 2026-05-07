@@ -9,8 +9,16 @@ export async function GET(req: NextRequest) {
   const desde = new Date();
   desde.setDate(desde.getDate() - 30);
 
+  // Admin puede filtrar por usuario con ?userId=X
+  const userIdParam = req.nextUrl.searchParams.get("userId");
+  const filtrarUserId = esAdmin && userIdParam ? Number(userIdParam) : null;
+
   const ventasWhere = esAdmin
-    ? { tipo: "VENTA" as const, fecha: { gte: desde } }
+    ? {
+        tipo: "VENTA" as const,
+        fecha: { gte: desde },
+        ...(filtrarUserId ? { userId: filtrarUserId } : {}),
+      }
     : { tipo: "VENTA" as const, fecha: { gte: desde }, userId: sesion?.userId ?? -1 };
 
   const ventas = await prisma.movimiento.findMany({
@@ -43,7 +51,13 @@ export async function GET(req: NextRequest) {
     .sort((a, b) => b.unidades - a.unidades)
     .slice(0, 10);
 
+  // No-admin: incluir su stock asignado
   if (!esAdmin) {
+    const stockPropio = await prisma.stockUsuario.findMany({
+      where: { userId: sesion?.userId ?? -1, cantidad: { gt: 0 } },
+      include: { articulo: { select: { id: true, nombre: true, categoria: { select: { nombre: true, color: true } } } } },
+      orderBy: { cantidad: "desc" },
+    });
     return NextResponse.json({
       esAdmin: false,
       stockValorizado: 0,
@@ -53,10 +67,16 @@ export async function GET(req: NextRequest) {
       serieVentas,
       topVendidos,
       stockBajo: [],
+      stockPropio,
     });
   }
 
-  const articulos = await prisma.articulo.findMany({ include: { categoria: true } });
+  // Admin
+  const [articulos, usuarios] = await Promise.all([
+    prisma.articulo.findMany({ include: { categoria: true } }),
+    prisma.user.findMany({ select: { id: true, username: true }, orderBy: { username: "asc" } }),
+  ]);
+
   const stockValorizado = articulos.reduce((acc, a) => acc + a.costo * a.stock, 0);
 
   const stockBajo = articulos
@@ -80,5 +100,8 @@ export async function GET(req: NextRequest) {
     serieVentas,
     topVendidos,
     stockBajo,
+    stockPropio: [],
+    usuarios, // para el dropdown de filtro
+    filtrandoUserId: filtrarUserId,
   });
 }

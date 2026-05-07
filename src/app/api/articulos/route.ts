@@ -25,8 +25,27 @@ export async function GET(req: NextRequest) {
 
   const sesion = await obtenerSesionDeRequest(req);
   const markupExtra = sesion?.markupExtra ?? 0;
+  const esAdmin = sesion?.role === "admin";
 
-  return NextResponse.json(filtrados.map((a) => aplicarMarkupUsuario(a, markupExtra)));
+  // Para no-admin: cargar su stock asignado por artículo
+  let miStockMap = new Map<number, number>();
+  if (!esAdmin && sesion?.userId) {
+    const stocks = await prisma.stockUsuario.findMany({
+      where: { userId: sesion.userId },
+      select: { articuloId: true, cantidad: true },
+    });
+    miStockMap = new Map(stocks.map((s) => [s.articuloId, s.cantidad]));
+  }
+
+  return NextResponse.json(
+    filtrados.map((a) => {
+      const withMarkup = aplicarMarkupUsuario(a, markupExtra);
+      if (!esAdmin) {
+        return { ...withMarkup, miStock: miStockMap.get(a.id) ?? 0 };
+      }
+      return withMarkup;
+    })
+  );
 }
 
 export async function POST(req: NextRequest) {

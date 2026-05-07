@@ -44,7 +44,8 @@ model Articulo {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  movimientos Movimiento[]
+  movimientos  Movimiento[]
+  stockUsuario StockUsuario[]
 
   @@index([categoriaId])
   @@index([nombre])
@@ -55,6 +56,7 @@ enum TipoMovimiento {
   SALIDA
   VENTA
   AJUSTE
+  ASIGNACION
 }
 
 enum ModoPrecio {
@@ -64,12 +66,26 @@ enum ModoPrecio {
 }
 
 model User {
-  id           Int         @id @default(autoincrement())
-  username     String      @unique
+  id           Int            @id @default(autoincrement())
+  username     String         @unique
   passwordHash String
-  role         String      @default("user")
-  markupExtra  Float       @default(0)
+  role         String         @default("user")
+  markupExtra  Float          @default(0)
   movimientos  Movimiento[]
+  stockUsuario StockUsuario[]
+}
+
+model StockUsuario {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  articuloId Int
+  cantidad   Int      @default(0)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articulo   Articulo @relation(fields: [articuloId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articuloId])
+  @@index([userId])
+  @@index([articuloId])
 }
 
 model Movimiento {

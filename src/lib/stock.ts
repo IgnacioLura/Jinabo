@@ -5,6 +5,7 @@ export const TIPO_LABEL: Record<TipoMovimiento, string> = {
   SALIDA: "Salida",
   VENTA: "Venta",
   AJUSTE: "Ajuste",
+  ASIGNACION: "Asignación",
 };
 
 export const TIPO_COLOR: Record<TipoMovimiento, string> = {
@@ -12,6 +13,7 @@ export const TIPO_COLOR: Record<TipoMovimiento, string> = {
   SALIDA: "bg-orange-100 text-orange-800",
   VENTA: "bg-sky-100 text-sky-800",
   AJUSTE: "bg-violet-100 text-violet-800",
+  ASIGNACION: "bg-indigo-100 text-indigo-800",
 };
 
 export interface AplicarMovimientoInput {
@@ -30,7 +32,8 @@ export function calcularNuevoStock({
   }
   if (tipo === "ENTRADA") return stockActual + cantidad;
   if (tipo === "SALIDA" || tipo === "VENTA") return stockActual - cantidad;
-  return cantidad;
+  if (tipo === "ASIGNACION") return stockActual; // no cambia stock global
+  return cantidad; // AJUSTE: stock final = cantidad
 }
 
 export type StockEstado = "ok" | "bajo" | "agotado";

@@ -12,9 +12,12 @@ interface Props {
   articulo: Articulo;
   onVender: (a: Articulo) => void;
   index?: number;
+  esAdmin?: boolean;
+  miStock?: number;
 }
 
-export default function ArticuloCard({ articulo, onVender, index = 0 }: Readonly<Props>) {
+export default function ArticuloCard({ articulo, onVender, index = 0, esAdmin = true, miStock }: Readonly<Props>) {
+  const stockMostrado = !esAdmin && miStock !== undefined ? miStock : articulo.stock;
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -42,7 +45,7 @@ export default function ArticuloCard({ articulo, onVender, index = 0 }: Readonly
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
 
         <div className="absolute top-2 right-2">
-          <StockBadge stock={articulo.stock} stockMinimo={articulo.stockMinimo} />
+          <StockBadge stock={stockMostrado} stockMinimo={esAdmin ? articulo.stockMinimo : 0} />
         </div>
         {articulo.categoria && (
           <span

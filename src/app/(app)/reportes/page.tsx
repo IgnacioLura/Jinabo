@@ -24,6 +24,12 @@ import {
   CartesianGrid,
 } from "recharts";
 
+interface StockPropio {
+  id: number;
+  cantidad: number;
+  articulo: { id: number; nombre: string; categoria: { nombre: string; color: string } | null };
+}
+
 interface Reporte {
   esAdmin: boolean;
   stockValorizado: number;
@@ -39,6 +45,9 @@ interface Reporte {
     stockMinimo: number;
     categoria: string | null;
   }[];
+  stockPropio: StockPropio[];
+  usuarios?: { id: number; username: string }[];
+  filtrandoUserId?: number | null;
 }
 
 interface FilaLiquidacion {
@@ -71,6 +80,7 @@ function primerDiaMes(): string {
 export default function ReportesPage() {
   const [data, setData] = useState<Reporte | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [filtroUsuario, setFiltroUsuario] = useState<number | "">("");
 
   // Liquidación
   const [desde, setDesde] = useState(primerDiaMes());
@@ -79,14 +89,18 @@ export default function ReportesPage() {
   const [cargandoLiq, setCargandoLiq] = useState(false);
   const [errorLiq, setErrorLiq] = useState("");
 
-  useEffect(() => {
-    fetch("/api/reportes")
+  function cargarReporte(userId?: number | "") {
+    setCargando(true);
+    const url = userId ? `/api/reportes?userId=${userId}` : "/api/reportes";
+    fetch(url)
       .then((r) => r.json())
       .then((d) => {
         setData(d);
         setCargando(false);
       });
-  }, []);
+  }
+
+  useEffect(() => { cargarReporte(); }, []);
 
   async function buscarLiquidacion() {
     setErrorLiq("");
@@ -170,13 +184,45 @@ export default function ReportesPage() {
 
   return (
     <div className="px-4 md:px-8 py-6 max-w-[1400px] mx-auto">
-      <motion.h1
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-extrabold tracking-tight mb-6 no-print"
-      >
-        {data.esAdmin ? "Reportes" : "Mis Ventas"}
-      </motion.h1>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 no-print">
+        <motion.h1
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-3xl font-extrabold tracking-tight"
+        >
+          {data.esAdmin
+            ? filtroUsuario && data.usuarios
+              ? `Ventas de ${data.usuarios.find((u) => u.id === filtroUsuario)?.username ?? "..."}`
+              : "Reportes"
+            : "Mis Ventas"}
+        </motion.h1>
+
+        {/* Filtro por usuario — solo admin */}
+        {data.esAdmin && data.usuarios && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center gap-2"
+          >
+            <select
+              value={filtroUsuario}
+              onChange={(e) => {
+                const val = e.target.value ? Number(e.target.value) : "";
+                setFiltroUsuario(val);
+                cargarReporte(val);
+              }}
+              className="h-10 px-4 rounded-xl border-2 border-[var(--border)] focus:border-[var(--brand)] focus:outline-none text-sm font-semibold bg-white"
+            >
+              <option value="">Todos los usuarios</option>
+              {data.usuarios.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.username}
+                </option>
+              ))}
+            </select>
+          </motion.div>
+        )}
+      </div>
 
       {/* KPI Cards — ocultos en impresión */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8 no-print">
@@ -305,6 +351,60 @@ export default function ReportesPage() {
           )}
         </motion.div>
       </div>
+
+      {/* Mi stock asignado — solo no-admin */}
+      {!data.esAdmin && data.stockPropio.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-2xl border border-[var(--border)] p-5 shadow-sm mb-8 no-print"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Package size={20} className="text-indigo-500" />
+            <h2 className="text-lg font-bold">Mi stock asignado</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b-2 border-[var(--border)] text-sm text-[var(--foreground)]/50">
+                  <th className="py-2.5 pr-4 font-semibold">Artículo</th>
+                  <th className="py-2.5 pr-4 font-semibold">Categoría</th>
+                  <th className="py-2.5 text-right font-semibold">Stock</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.stockPropio.map((item, i) => (
+                  <motion.tr
+                    key={item.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.55 + i * 0.03 }}
+                    className="border-b border-[var(--border)]/40 hover:bg-[var(--surface-soft)]/50 transition-colors"
+                  >
+                    <td className="py-3 pr-4 font-semibold">{item.articulo.nombre}</td>
+                    <td className="py-3 pr-4 text-sm">
+                      {item.articulo.categoria ? (
+                        <span
+                          className="px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
+                          style={{ backgroundColor: item.articulo.categoria.color }}
+                        >
+                          {item.articulo.categoria.nombre}
+                        </span>
+                      ) : "—"}
+                    </td>
+                    <td className={`py-3 text-right font-black tabular-nums text-lg ${
+                      item.cantidad === 0 ? "text-rose-600" : "text-indigo-700"
+                    }`}>
+                      {item.cantidad}
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      )}
 
       {/* Alertas de stock bajo — solo admin */}
       {data.esAdmin && <motion.div

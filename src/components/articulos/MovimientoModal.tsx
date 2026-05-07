@@ -14,6 +14,8 @@ interface Props {
   tipoInicial?: TipoMovimiento;
   onClose: () => void;
   onConfirmado: (a: Articulo) => void;
+  role?: string;    // "admin" | "user" — restricts available types
+  miStock?: number; // stock propio del usuario (no-admin)
 }
 
 const TIPOS: { value: TipoMovimiento; label: string; icon: typeof ShoppingCart; gradient: string }[] = [
@@ -28,7 +30,12 @@ export default function MovimientoModal({
   tipoInicial = "VENTA",
   onClose,
   onConfirmado,
+  role = "admin",
+  miStock,
 }: Readonly<Props>) {
+  const esAdmin = role === "admin";
+  const tiposVisibles = esAdmin ? TIPOS : TIPOS.filter((t) => t.value === "VENTA");
+  const stockReferencia = !esAdmin && miStock !== undefined ? miStock : articulo.stock;
   const [tipo, setTipo] = useState<TipoMovimiento>(tipoInicial);
   const [cantidad, setCantidad] = useState(1);
   const [modoPrecio, setModoPrecio] = useState<ModoPrecio>("MEDIO");
@@ -76,9 +83,9 @@ export default function MovimientoModal({
 
   const total = tipo === "VENTA" ? precioUnitario * cantidad : 0;
   const stockProyectado =
-    tipo === "ENTRADA" ? articulo.stock + cantidad
+    tipo === "ENTRADA" ? stockReferencia + cantidad
     : tipo === "AJUSTE" ? cantidad
-    : articulo.stock - cantidad;
+    : stockReferencia - cantidad;
 
   return (
     <AnimatePresence>
@@ -117,7 +124,7 @@ export default function MovimientoModal({
 
           <div className="p-5 flex-1 overflow-y-auto">
             <div className="grid grid-cols-4 gap-2 mb-5">
-              {TIPOS.map((t) => {
+              {tiposVisibles.map((t) => {
                 const Icon = t.icon;
                 return (
                   <motion.button
@@ -168,7 +175,7 @@ export default function MovimientoModal({
                 </motion.button>
               </div>
               <p className="mt-2 text-xs text-[var(--foreground)]/50">
-                Stock actual: <strong>{articulo.stock}</strong> &rarr; proyectado:{" "}
+                {esAdmin ? "Stock total" : "Mi stock"}: <strong>{stockReferencia}</strong> &rarr; proyectado:{" "}
                 <strong className={stockProyectado < 0 ? "text-rose-600" : "text-emerald-600"}>
                   {stockProyectado}
                 </strong>

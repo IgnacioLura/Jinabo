@@ -9,9 +9,15 @@ import type { Articulo, Categoria } from "@/types/models";
 import ArticuloCard from "@/components/articulos/ArticuloCard";
 import MovimientoModal from "@/components/articulos/MovimientoModal";
 
+interface Sesion {
+  role: string;
+  userId: number;
+}
+
 export default function ArticulosPage() {
   const [articulos, setArticulos] = useState<Articulo[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [sesion, setSesion] = useState<Sesion | null>(null);
   const [q, setQ] = useState("");
   const [catId, setCatId] = useState<number | null>(null);
   const [stockBajo, setStockBajo] = useState(false);
@@ -19,6 +25,7 @@ export default function ArticulosPage() {
   const [vendiendo, setVendiendo] = useState<Articulo | null>(null);
   const [importando, setImportando] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const esAdmin = sesion?.role === "admin";
 
   async function importarExcel(e: React.ChangeEvent<HTMLInputElement>) {
     const archivo = e.target.files?.[0];
@@ -52,7 +59,10 @@ export default function ArticulosPage() {
     setCargando(false);
   }
 
-  useEffect(() => { cargar(); }, []);
+  useEffect(() => {
+    fetch("/api/sesion").then((r) => r.ok ? r.json() : null).then(setSesion);
+    cargar();
+  }, []);
 
   const filtrados = useMemo(() => {
     return articulos.filter((a) => {
@@ -84,28 +94,30 @@ export default function ArticulosPage() {
             {filtrados.length} de {articulos.length} articulos
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importarExcel} />
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => inputRef.current?.click()}
-            disabled={importando}
-            className="tap inline-flex items-center gap-2 px-5 py-3 bg-white border-2 border-[var(--border)] rounded-xl font-bold shadow-sm hover:bg-[var(--surface-soft)] disabled:opacity-50"
-          >
-            <Upload size={20} />
-            {importando ? "Importando..." : "Importar Excel"}
-          </motion.button>
-          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-            <Link
-              href="/articulos/nuevo"
-              className="tap inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold shadow-md btn-glow"
+        {esAdmin && (
+          <div className="flex items-center gap-2">
+            <input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden" onChange={importarExcel} />
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => inputRef.current?.click()}
+              disabled={importando}
+              className="tap inline-flex items-center gap-2 px-5 py-3 bg-white border-2 border-[var(--border)] rounded-xl font-bold shadow-sm hover:bg-[var(--surface-soft)] disabled:opacity-50"
             >
-              <Plus size={20} />
-              Nuevo articulo
-            </Link>
-          </motion.div>
-        </div>
+              <Upload size={20} />
+              {importando ? "Importando..." : "Importar Excel"}
+            </motion.button>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                href="/articulos/nuevo"
+                className="tap inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-xl font-bold shadow-md btn-glow"
+              >
+                <Plus size={20} />
+                Nuevo articulo
+              </Link>
+            </motion.div>
+          </div>
+        )}
       </motion.div>
 
       <motion.div
@@ -191,7 +203,14 @@ export default function ArticulosPage() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
           {filtrados.map((a, i) => (
-            <ArticuloCard key={a.id} articulo={a} onVender={setVendiendo} index={i} />
+            <ArticuloCard
+              key={a.id}
+              articulo={a}
+              onVender={setVendiendo}
+              index={i}
+              esAdmin={esAdmin}
+              miStock={a.miStock}
+            />
           ))}
         </div>
       )}
@@ -202,6 +221,8 @@ export default function ArticulosPage() {
           tipoInicial="VENTA"
           onClose={() => setVendiendo(null)}
           onConfirmado={actualizarArticulo}
+          role={sesion?.role}
+          miStock={vendiendo.miStock}
         />
       )}
     </div>

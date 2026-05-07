@@ -20,6 +20,13 @@ export async function POST(req: NextRequest, { params }: Params) {
   const modoPrecio = (body.modoPrecio as ModoPrecio | null) || null;
   const motivo = body.motivo ? String(body.motivo).trim() : null;
 
+  const esAdmin = sesion?.role === "admin";
+
+  // No-admin solo puede vender
+  if (!esAdmin && tipo !== "VENTA") {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
   if (!["ENTRADA", "SALIDA", "VENTA", "AJUSTE"].includes(tipo)) {
     return NextResponse.json({ error: "Tipo inválido" }, { status: 400 });
   }
@@ -32,6 +39,40 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Artículo no encontrado" }, { status: 404 });
   }
 
+  // No-admin: chequea y descuenta StockUsuario
+  if (!esAdmin && tipo === "VENTA") {
+    const userId = sesion!.userId;
+    const stockUser = await prisma.stockUsuario.findUnique({
+      where: { userId_articuloId: { userId, articuloId } },
+    });
+    const miStock = stockUser?.cantidad ?? 0;
+
+    if (cantidad > miStock) {
+      return NextResponse.json(
+        { error: `Stock insuficiente (tu stock: ${miStock})` },
+        { status: 400 }
+      );
+    }
+
+    const results = await prisma.$transaction([
+      prisma.movimiento.create({
+        data: { articuloId, userId, tipo, cantidad, precioUnitario, modoPrecio, motivo },
+      }),
+      prisma.articulo.update({
+        where: { id: articuloId },
+        data: { stock: { decrement: cantidad } },
+        include: { categoria: true },
+      }),
+      prisma.stockUsuario.update({
+        where: { userId_articuloId: { userId, articuloId } },
+        data: { cantidad: { decrement: cantidad } },
+      }),
+    ]);
+
+    return NextResponse.json(results[1]);
+  }
+
+  // Admin: lógica original
   const nuevoStock = calcularNuevoStock({
     stockActual: articulo.stock,
     tipo,

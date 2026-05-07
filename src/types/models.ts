@@ -10,6 +10,7 @@ export type Categoria = PrismaCategoria & {
 
 export type Articulo = PrismaArticulo & {
   categoria?: PrismaCategoria | null;
+  miStock?: number; // stock asignado al usuario actual (no-admin)
 };
 
 export type ArticuloDetalle = Articulo & {
