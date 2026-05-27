@@ -24,7 +24,9 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 
   const sesion = await obtenerSesionDeRequest(req);
-  const markupExtra = sesion?.markupExtra ?? 0;
+  const markupExtra = sesion?.userId
+    ? ((await prisma.user.findUnique({ where: { id: sesion.userId }, select: { markupExtra: true } }))?.markupExtra ?? 0)
+    : 0;
   const esAdmin = sesion?.role === "admin";
   const withMarkup = aplicarMarkupUsuario(articulo, markupExtra);
 

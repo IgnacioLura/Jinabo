@@ -24,17 +24,23 @@ export async function GET(req: NextRequest) {
     : articulos;
 
   const sesion = await obtenerSesionDeRequest(req);
-  const markupExtra = sesion?.markupExtra ?? 0;
+  const markupExtra = sesion?.userId
+    ? ((await prisma.user.findUnique({ where: { id: sesion.userId }, select: { markupExtra: true } }))?.markupExtra ?? 0)
+    : 0;
   const esAdmin = sesion?.role === "admin";
 
   // Para no-admin: cargar su stock asignado por artículo
   let miStockMap = new Map<number, number>();
   if (!esAdmin && sesion?.userId) {
-    const stocks = await prisma.stockUsuario.findMany({
-      where: { userId: sesion.userId },
-      select: { articuloId: true, cantidad: true },
-    });
-    miStockMap = new Map(stocks.map((s) => [s.articuloId, s.cantidad]));
+    try {
+      const stocks = await prisma.stockUsuario.findMany({
+        where: { userId: sesion.userId },
+        select: { articuloId: true, cantidad: true },
+      });
+      miStockMap = new Map(stocks.map((s) => [s.articuloId, s.cantidad]));
+    } catch {
+      // Tabla StockUsuario aún no existe (migración pendiente)
+    }
   }
 
   return NextResponse.json(
