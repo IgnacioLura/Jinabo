@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json({
       esAdmin: false,
+      stockValorizado: 0,
       ventasMonto: Math.round(ventasMonto * 100) / 100,
       ventasUnidades,
       cantidadArticulos: 0,
@@ -93,8 +94,11 @@ export async function GET(req: NextRequest) {
       categoria: a.categoria?.nombre || null,
     }));
 
+  const stockValorizado = articulos.reduce((acc, a) => acc + a.costo * a.stock, 0);
+
   return NextResponse.json({
     esAdmin: true,
+    stockValorizado: Math.round(stockValorizado * 100) / 100,
     ventasMonto: Math.round(ventasMonto * 100) / 100,
     ventasUnidades,
     cantidadArticulos: articulos.length,

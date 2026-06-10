@@ -61,10 +61,41 @@ export default function ArticulosPage() {
 
   useEffect(() => {
     fetch("/api/sesion").then((r) => r.ok ? r.json() : null).then(setSesion);
+
+    const fromDetail = sessionStorage.getItem("articulos-from-detail");
+    if (fromDetail) {
+      sessionStorage.removeItem("articulos-from-detail");
+      const cached = sessionStorage.getItem("articulos-cache");
+      if (cached) {
+        try {
+          const { articulos: a, categorias: c, q: sq, catId: sc, stockBajo: sb } = JSON.parse(cached);
+          setArticulos(a);
+          setCategorias(c);
+          setQ(sq ?? "");
+          setCatId(sc ?? null);
+          setStockBajo(sb ?? false);
+          setCargando(false);
+          return;
+        } catch {}
+      }
+    }
+    // Fresh navigation — clear stale cache and fetch
+    sessionStorage.removeItem("articulos-cache");
     cargar();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Restore scroll position when returning from article detail
+  // Persist data + filters to cache whenever they change
+  useEffect(() => {
+    if (!cargando && articulos.length > 0) {
+      sessionStorage.setItem(
+        "articulos-cache",
+        JSON.stringify({ articulos, categorias, q, catId, stockBajo }),
+      );
+    }
+  }, [articulos, categorias, q, catId, stockBajo, cargando]);
+
+  // Restore scroll position after cache restore
   useEffect(() => {
     if (!cargando) {
       const saved = sessionStorage.getItem("articulos-scroll");
@@ -72,7 +103,7 @@ export default function ArticulosPage() {
         sessionStorage.removeItem("articulos-scroll");
         setTimeout(() => {
           window.scrollTo({ top: parseInt(saved), behavior: "instant" });
-        }, 150);
+        }, 50);
       }
     }
   }, [cargando]);

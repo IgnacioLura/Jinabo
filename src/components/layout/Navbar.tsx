@@ -21,11 +21,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/sesion")
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => d && setRole(d.role))
+      .then((d) => { if (d) { setRole(d.role); setUsername(d.username); } })
       .catch(() => null);
   }, []);
 
@@ -37,7 +38,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-30 shadow-lg" style={{ background: "var(--navy)" }}>
+    <nav className="no-print sticky top-0 z-30 shadow-lg" style={{ background: "var(--navy)" }}>
       <div className="px-4 md:px-8 h-16 flex items-center gap-3">
         <Link href="/articulos" className="flex items-center gap-3 mr-4 shrink-0 group">
           <motion.div
@@ -92,15 +93,22 @@ export default function Navbar() {
           })}
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={logout}
-          className="tap flex items-center gap-1.5 px-3 py-2 text-sm rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-        >
-          <LogOut size={16} />
-          <span className="hidden sm:inline">Salir</span>
-        </motion.button>
+        <div className="flex flex-col items-end gap-0.5 shrink-0">
+          {username && (
+            <span className="hidden sm:block text-xs font-semibold text-white/70 leading-none">
+              {username}
+            </span>
+          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={logout}
+            className="tap flex items-center gap-1.5 px-3 py-2 text-sm rounded-xl text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <LogOut size={16} />
+            <span className="hidden sm:inline">Salir</span>
+          </motion.button>
+        </div>
       </div>
     </nav>
   );

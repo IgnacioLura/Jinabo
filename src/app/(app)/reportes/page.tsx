@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
+  DollarSign,
   Package,
   ShoppingBag,
   BarChart3,
@@ -31,6 +32,7 @@ interface StockPropio {
 
 interface Reporte {
   esAdmin: boolean;
+  stockValorizado: number;
   ventasMonto: number;
   ventasUnidades: number;
   cantidadArticulos: number;
@@ -158,6 +160,14 @@ export default function ReportesPage() {
   ];
 
   const kpisAdmin = [
+    {
+      label: "Stock valorizado",
+      value: formatearMoneda(data.stockValorizado),
+      icon: DollarSign,
+      gradient: "from-blue-500 to-indigo-600",
+      bg: "from-blue-50 to-indigo-50",
+      border: "border-blue-200",
+    },
     {
       label: "Total articulos",
       value: String(data.cantidadArticulos),
@@ -573,19 +583,27 @@ export default function ReportesPage() {
                   </tbody>
                   <tfoot>
                     <tr className="border-t-2 border-[var(--border)]">
-                      <td colSpan={4} className="py-3 font-extrabold text-right pr-3">
+                      <td colSpan={4} className="py-2 font-semibold text-right pr-3 text-[var(--foreground)]/60">
                         Total costo
                       </td>
-                      <td className="py-3 text-right font-black text-xl tabular-nums text-[var(--brand)]">
+                      <td className="py-2 text-right tabular-nums text-[var(--foreground)]/60">
                         {formatearMoneda(liquidacion.totalCosto)}
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={4} className="py-2 font-bold text-right pr-3 text-[var(--foreground)]/60">
+                      <td colSpan={4} className="py-2 font-semibold text-right pr-3 text-[var(--foreground)]/60">
                         Comisión 10%
                       </td>
-                      <td className="py-2 text-right font-black text-lg tabular-nums text-emerald-700">
-                        {formatearMoneda(Math.round(liquidacion.totalCosto * 0.10 * 100) / 100)}
+                      <td className="py-2 text-right tabular-nums text-[var(--foreground)]/60">
+                        − {formatearMoneda(Math.round(liquidacion.totalCosto * 0.10 * 100) / 100)}
+                      </td>
+                    </tr>
+                    <tr className="border-t-2 border-[var(--border)]">
+                      <td colSpan={4} className="py-3 font-extrabold text-right pr-3">
+                        Total a liquidar
+                      </td>
+                      <td className="py-3 text-right font-black text-xl tabular-nums text-[var(--brand)]">
+                        {formatearMoneda(Math.round(liquidacion.totalCosto * 0.90 * 100) / 100)}
                       </td>
                     </tr>
                   </tfoot>
