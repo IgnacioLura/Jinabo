@@ -70,12 +70,9 @@ export default function ArticulosPage() {
       const saved = sessionStorage.getItem("articulos-scroll");
       if (saved) {
         sessionStorage.removeItem("articulos-scroll");
-        // Double rAF: wait for layout+paint before scrolling
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            window.scrollTo({ top: parseInt(saved), behavior: "instant" });
-          });
-        });
+        setTimeout(() => {
+          window.scrollTo({ top: parseInt(saved), behavior: "instant" });
+        }, 150);
       }
     }
   }, [cargando]);

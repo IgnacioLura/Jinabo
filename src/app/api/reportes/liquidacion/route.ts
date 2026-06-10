@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     },
     include: {
       articulo: {
-        select: { id: true, nombre: true, costo: true, categoria: { select: { nombre: true } } },
+        select: { id: true, nombre: true, costo: true, stock: true, categoria: { select: { nombre: true } } },
       },
     },
     orderBy: { fecha: "asc" },
@@ -46,10 +46,8 @@ export async function GET(req: NextRequest) {
       nombre: string;
       categoria: string | null;
       costo: number;
-      entradas: number;
-      salidas: number;
+      stock: number;
       ventas: number;
-      totalCosto: number;
     }
   >();
 
@@ -59,31 +57,23 @@ export async function GET(req: NextRequest) {
       nombre: m.articulo.nombre,
       categoria: m.articulo.categoria?.nombre ?? null,
       costo: m.articulo.costo,
-      entradas: 0,
-      salidas: 0,
+      stock: m.articulo.stock,
       ventas: 0,
-      totalCosto: 0,
     };
 
-    if (m.tipo === "ENTRADA") {
-      cur.entradas += m.cantidad;
-      cur.totalCosto += m.cantidad * m.articulo.costo;
-    } else if (m.tipo === "SALIDA") {
-      cur.salidas += m.cantidad;
-    } else if (m.tipo === "VENTA") {
+    if (m.tipo === "VENTA") {
       cur.ventas += m.cantidad;
-      // totalCosto incluye las vendidas también (para liquidar)
-      cur.totalCosto += m.cantidad * m.articulo.costo;
     }
 
     porArticulo.set(m.articuloId, cur);
   }
 
-  const filas = Array.from(porArticulo.values()).sort((a, b) =>
-    a.nombre.localeCompare(b.nombre),
-  );
+  // Solo artículos con ventas
+  const filas = Array.from(porArticulo.values())
+    .filter((f) => f.ventas > 0)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
-  const totalCostoGeneral = filas.reduce((acc, f) => acc + f.totalCosto, 0);
+  const totalCostoGeneral = filas.reduce((acc, f) => acc + f.ventas * f.costo, 0);
 
   return NextResponse.json({
     desde: desdeParam,

@@ -79,7 +79,7 @@ export default function ArticuloDetalleClient({
         </div>
       )}
       <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-        <Link href="/articulos" className="text-sm text-[var(--foreground)]/50 hover:text-[var(--brand)] transition-colors inline-flex items-center gap-1">
+        <Link href="/articulos" scroll={false} className="text-sm text-[var(--foreground)]/50 hover:text-[var(--brand)] transition-colors inline-flex items-center gap-1">
           <ArrowLeft size={14} />
           Volver
         </Link>

@@ -53,10 +53,8 @@ interface FilaLiquidacion {
   nombre: string;
   categoria: string | null;
   costo: number;
-  entradas: number;
-  salidas: number;
+  stock: number;
   ventas: number;
-  totalCosto: number;
 }
 
 interface Liquidacion {
@@ -546,11 +544,9 @@ export default function ReportesPage() {
                     <tr className="border-b-2 border-[var(--border)] text-xs text-[var(--foreground)]/50">
                       <th className="py-2.5 pr-3 font-semibold">Artículo</th>
                       <th className="py-2.5 pr-3 font-semibold">Categoría</th>
-                      <th className="py-2.5 pr-3 font-semibold text-right">Ingresadas</th>
-                      <th className="py-2.5 pr-3 font-semibold text-right">Vendidas</th>
-                      <th className="py-2.5 pr-3 font-semibold text-right">Salidas</th>
-                      <th className="py-2.5 pr-3 font-semibold text-right">Costo unit.</th>
-                      <th className="py-2.5 font-semibold text-right">Total costo</th>
+                      <th className="py-2.5 pr-3 font-semibold text-right">En stock</th>
+                      <th className="py-2.5 pr-3 font-semibold text-right">Ventas</th>
+                      <th className="py-2.5 font-semibold text-right">Precio costo</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -563,31 +559,33 @@ export default function ReportesPage() {
                         <td className="py-2.5 pr-3 text-[var(--foreground)]/50">
                           {f.categoria || "—"}
                         </td>
-                        <td className="py-2.5 pr-3 text-right tabular-nums font-medium text-emerald-700">
-                          {f.entradas > 0 ? `+${f.entradas}` : "—"}
+                        <td className="py-2.5 pr-3 text-right tabular-nums font-medium">
+                          {f.stock}
                         </td>
                         <td className="py-2.5 pr-3 text-right tabular-nums font-medium text-orange-700">
-                          {f.ventas > 0 ? f.ventas : "—"}
-                        </td>
-                        <td className="py-2.5 pr-3 text-right tabular-nums font-medium text-[var(--foreground)]/50">
-                          {f.salidas > 0 ? f.salidas : "—"}
-                        </td>
-                        <td className="py-2.5 pr-3 text-right tabular-nums text-[var(--foreground)]/60">
-                          {formatearMoneda(f.costo)}
+                          {f.ventas}
                         </td>
                         <td className="py-2.5 text-right tabular-nums font-bold text-[var(--brand)]">
-                          {formatearMoneda(f.totalCosto)}
+                          {formatearMoneda(f.costo)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr className="border-t-2 border-[var(--border)]">
-                      <td colSpan={6} className="py-3 font-extrabold text-right pr-3">
-                        TOTAL A PAGAR
+                      <td colSpan={4} className="py-3 font-extrabold text-right pr-3">
+                        Total costo
                       </td>
                       <td className="py-3 text-right font-black text-xl tabular-nums text-[var(--brand)]">
                         {formatearMoneda(liquidacion.totalCosto)}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={4} className="py-2 font-bold text-right pr-3 text-[var(--foreground)]/60">
+                        Comisión 10%
+                      </td>
+                      <td className="py-2 text-right font-black text-lg tabular-nums text-emerald-700">
+                        {formatearMoneda(Math.round(liquidacion.totalCosto * 0.10 * 100) / 100)}
                       </td>
                     </tr>
                   </tfoot>
