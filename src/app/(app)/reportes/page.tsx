@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  DollarSign,
   Package,
   ShoppingBag,
   BarChart3,
@@ -32,7 +31,6 @@ interface StockPropio {
 
 interface Reporte {
   esAdmin: boolean;
-  stockValorizado: number;
   ventasMonto: number;
   ventasUnidades: number;
   cantidadArticulos: number;
@@ -162,14 +160,6 @@ export default function ReportesPage() {
   ];
 
   const kpisAdmin = [
-    {
-      label: "Stock valorizado",
-      value: formatearMoneda(data.stockValorizado),
-      icon: DollarSign,
-      gradient: "from-blue-500 to-indigo-600",
-      bg: "from-blue-50 to-indigo-50",
-      border: "border-blue-200",
-    },
     {
       label: "Total articulos",
       value: String(data.cantidadArticulos),

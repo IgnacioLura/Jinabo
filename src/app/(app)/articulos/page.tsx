@@ -64,6 +64,28 @@ export default function ArticulosPage() {
     cargar();
   }, []);
 
+  // Restore scroll position when returning from article detail
+  useEffect(() => {
+    if (!cargando) {
+      const saved = sessionStorage.getItem("articulos-scroll");
+      if (saved) {
+        sessionStorage.removeItem("articulos-scroll");
+        // Double rAF: wait for layout+paint before scrolling
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: parseInt(saved), behavior: "instant" });
+          });
+        });
+      }
+    }
+  }, [cargando]);
+
+  useEffect(() => {
+    const save = () => sessionStorage.setItem("articulos-scroll", window.scrollY.toString());
+    window.addEventListener("scroll", save, { passive: true });
+    return () => window.removeEventListener("scroll", save);
+  }, []);
+
   const filtrados = useMemo(() => {
     return articulos.filter((a) => {
       if (catId && a.categoriaId !== catId) return false;

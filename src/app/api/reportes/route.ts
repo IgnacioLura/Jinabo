@@ -53,14 +53,18 @@ export async function GET(req: NextRequest) {
 
   // No-admin: incluir su stock asignado
   if (!esAdmin) {
-    const stockPropio = await prisma.stockUsuario.findMany({
-      where: { userId: sesion?.userId ?? -1, cantidad: { gt: 0 } },
-      include: { articulo: { select: { id: true, nombre: true, categoria: { select: { nombre: true, color: true } } } } },
-      orderBy: { cantidad: "desc" },
-    });
+    let stockPropio: unknown[] = [];
+    try {
+      stockPropio = await prisma.stockUsuario.findMany({
+        where: { userId: sesion?.userId ?? -1, cantidad: { gt: 0 } },
+        include: { articulo: { select: { id: true, nombre: true, categoria: { select: { nombre: true, color: true } } } } },
+        orderBy: { cantidad: "desc" },
+      });
+    } catch {
+      // Tabla StockUsuario aún no existe (migración pendiente)
+    }
     return NextResponse.json({
       esAdmin: false,
-      stockValorizado: 0,
       ventasMonto: Math.round(ventasMonto * 100) / 100,
       ventasUnidades,
       cantidadArticulos: 0,
@@ -77,8 +81,6 @@ export async function GET(req: NextRequest) {
     prisma.user.findMany({ select: { id: true, username: true }, orderBy: { username: "asc" } }),
   ]);
 
-  const stockValorizado = articulos.reduce((acc, a) => acc + a.costo * a.stock, 0);
-
   const stockBajo = articulos
     .filter((a) => a.stock <= a.stockMinimo && a.stockMinimo > 0)
     .sort((a, b) => a.stock - b.stock)
@@ -93,7 +95,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     esAdmin: true,
-    stockValorizado: Math.round(stockValorizado * 100) / 100,
     ventasMonto: Math.round(ventasMonto * 100) / 100,
     ventasUnidades,
     cantidadArticulos: articulos.length,
